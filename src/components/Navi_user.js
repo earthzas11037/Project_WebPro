@@ -28,9 +28,10 @@ const useStyles = makeStyles((theme) => ({
 
 function Navi_user(props) {
     const classes = useStyles();
+    const [pagename, setPagename] = useState("");
 
     useEffect(() => {
-
+        setPagename(props.history.location.pathname.split('/')[2])
     }, []);
 
     return (
@@ -44,7 +45,7 @@ function Navi_user(props) {
                     alignItems="center"
                   >
                     <Typography style={{color:"BLACK",fontSize:"1.5em"}}>
-                        หน้าหลัก
+                        {pagename}
                     </Typography>
                     <Typography style={{color:" #14BF92",fontSize:"2em",fontWeight:"bold"}}>
                         CHECK TIME

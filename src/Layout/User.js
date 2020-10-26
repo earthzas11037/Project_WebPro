@@ -7,6 +7,7 @@ import routes from "../routes.js";
 
 import HomePage from '../views/Home_user'
 import LeaveRecord from '../views/LeaveRecord'
+import CalendarPage from '../views/CalendarPage'
 import History_Record from '../views/History_Record'
 import Navi_user from '../components/Navi_user'
 
@@ -59,6 +60,7 @@ function User(props){
                 <Switch>
                     <Route path="/user/หน้าหลัก" component={HomePage} />
                     <Route path="/user/ประวัติการลงเวลา" component={History_Record} />
+                    <Route path="/user/ปฏิทินการทำงาน" component={CalendarPage} />
                     <Route path="/user/เพื่มบันทึกการลา" component={LeaveRecord} />
                     <Redirect from="/" to="/user/หน้าหลัก" />
                 </Switch>

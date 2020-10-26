@@ -96,7 +96,7 @@ function Home_user(props){
                                     </Typography>
                                 </ListItem>
                             </NavLink>
-                            <NavLink to="/user" style={{ textDecoration: 'none' }}>
+                            <NavLink to="/user/ปฏิทินการทำงาน" style={{ textDecoration: 'none' }}>
                                 <ListItem button style={{borderRadius:10}} >
                                     <Typography style={{color:"BLACK",fontSize:"1.5em"}}>
                                         ปฏิทินการทำงาน
