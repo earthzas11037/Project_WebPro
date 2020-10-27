@@ -10,6 +10,7 @@ import Clock_date from "../hooks/Clock_date"
 import Clock_time from "../hooks/Clock_time"
 
 function Home_user(props){
+    const type = "ADMIN";
 
     return(
         <Grid
@@ -89,30 +90,110 @@ function Home_user(props){
                             justify="flex-start"
                             alignItems="flex-start"
                         >
-                            <NavLink to="/user/ประวัติการลงเวลา" style={{ textDecoration: 'none' }}>
+                            <NavLink to="/ประวัติการลงเวลา" style={{ textDecoration: 'none' }}>
                                 <ListItem button style={{borderRadius:10}} >
                                     <Typography style={{color:"BLACK",fontSize:"1.5em"}}>
                                         ดูประวัติการลงเวลาเข้า - ออก
                                     </Typography>
                                 </ListItem>
                             </NavLink>
-                            <NavLink to="/user/ปฏิทินการทำงาน" style={{ textDecoration: 'none' }}>
-                                <ListItem button style={{borderRadius:10}} >
-                                    <Typography style={{color:"BLACK",fontSize:"1.5em"}}>
-                                        ปฏิทินการทำงาน
-                                    </Typography>
-                                </ListItem>
-                            </NavLink>
-                            <NavLink to="/user/เพื่มบันทึกการลา" style={{ textDecoration: 'none' }}>
-                                <ListItem button style={{borderRadius:10}} >
-                                    <Typography style={{color:"BLACK",fontSize:"1.5em"}}>
-                                        เพิ่มบันทึกการลา
-                                    </Typography>
-                                </ListItem>
-                            </NavLink>
+                            {
+                                type === "USER" ? (
+                                    <div>
+                                        <NavLink to="/ปฏิทินการทำงาน" style={{ textDecoration: 'none' }}>
+                                            <ListItem button style={{borderRadius:10}} >
+                                                <Typography style={{color:"BLACK",fontSize:"1.5em"}}>
+                                                    ปฏิทินการทำงาน
+                                                </Typography>
+                                            </ListItem>
+                                        </NavLink>
+                                        <NavLink to="/เพื่มบันทึกการลา" style={{ textDecoration: 'none' }}>
+                                            <ListItem button style={{borderRadius:10}} >
+                                                <Typography style={{color:"BLACK",fontSize:"1.5em"}}>
+                                                    เพิ่มบันทึกการลา
+                                                </Typography>
+                                            </ListItem>
+                                        </NavLink>
+                                    </div>
+                                ): null
+                            }
                         </Grid>
                     </Grid>
                 </Grid>
+                {
+                    type === "ADMIN" ? (
+                        <div>
+                            <Typography style={{color:"RED",fontSize:"1.3em",marginTop:30}}>
+                                เพื่มเติม
+                            </Typography>
+                            <Grid
+                                container
+                                direction="column"
+                                justify="flex-start"
+                                alignItems="center"
+                            >
+                                <Grid item xs={12} sm={8} md={6} style={{marginTop:20}}>
+                                    <Grid
+                                        container
+                                        direction="column"
+                                        justify="flex-start"
+                                        alignItems="flex-start"
+                                    >
+                                        <NavLink to="/รายงานการลงเวลา" style={{ textDecoration: 'none' }}>
+                                            <ListItem button style={{borderRadius:10}} >
+                                                <Typography style={{color:"BLACK",fontSize:"1.5em"}}>
+                                                    ดูรายงานการลงเวลาเข้า - ออก
+                                                </Typography>
+                                            </ListItem>
+                                        </NavLink>
+                                        <NavLink to="/จัดปฏิทินการทำงาน" style={{ textDecoration: 'none' }}>
+                                            <ListItem button style={{borderRadius:10}} >
+                                                <Typography style={{color:"BLACK",fontSize:"1.5em"}}>
+                                                    จัดปฏิทินการทำงาน
+                                                </Typography>
+                                            </ListItem>
+                                        </NavLink>
+                                        <NavLink to="/ลงทะเบียนพนักงาน" style={{ textDecoration: 'none' }}>
+                                            <ListItem button style={{borderRadius:10}} >
+                                                <Typography style={{color:"BLACK",fontSize:"1.5em"}}>
+                                                    ลงทะเบียนพนักงาน
+                                                </Typography>
+                                            </ListItem>
+                                        </NavLink>
+                                        <NavLink to="/อนุมัติการลา" style={{ textDecoration: 'none' }}>
+                                            <ListItem button style={{borderRadius:10}} >
+                                                <Typography style={{color:"BLACK",fontSize:"1.5em"}}>
+                                                    อนุมัติการลา
+                                                </Typography>
+                                            </ListItem>
+                                        </NavLink>
+                                        <NavLink to="/ปรับปรุงเวลา" style={{ textDecoration: 'none' }}>
+                                            <ListItem button style={{borderRadius:10}} >
+                                                <Typography style={{color:"BLACK",fontSize:"1.5em"}}>
+                                                    ปรับปรุงเวลา
+                                                </Typography>
+                                            </ListItem>
+                                        </NavLink>
+                                        <NavLink to="/ดูเงินเดือนพนักงาน" style={{ textDecoration: 'none' }}>
+                                            <ListItem button style={{borderRadius:10}} >
+                                                <Typography style={{color:"BLACK",fontSize:"1.5em"}}>
+                                                    ดูเงินเดือนพนักงาน
+                                                </Typography>
+                                            </ListItem>
+                                        </NavLink>
+                                        <NavLink to="/จัดการข้อมูลพนักงาน" style={{ textDecoration: 'none' }}>
+                                            <ListItem button style={{borderRadius:10}} >
+                                                <Typography style={{color:"BLACK",fontSize:"1.5em"}}>
+                                                    จัดการข้อมูลพนักงาน
+                                                </Typography>
+                                            </ListItem>
+                                        </NavLink>
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                        </div>
+                    ) : null
+                }
             </Grid>
         </Grid>
     )

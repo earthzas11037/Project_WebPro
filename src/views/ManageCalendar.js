@@ -17,7 +17,7 @@ import DateFnsUtils from '@date-io/date-fns';
 
 const localizer = momentLocalizer(moment)
 
-function CalendarPage(props){
+function ManageCalendar(props){
     const [dataEvents, setDataEvents] = useState([])
     const [open, setOpen] = React.useState(false);
     const [addEvent, setAddEvent] = useState({
@@ -215,4 +215,4 @@ function CalendarPage(props){
     )
 }
 
-export default CalendarPage;
+export default ManageCalendar;

@@ -31,7 +31,7 @@ function Navi_user(props) {
     const [pagename, setPagename] = useState("");
 
     useEffect(() => {
-        setPagename(props.history.location.pathname.split('/')[2])
+        setPagename(props.history.location.pathname.split('/')[1])
     }, []);
 
     return (

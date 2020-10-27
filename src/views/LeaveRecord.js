@@ -93,7 +93,7 @@ function LeaveRecord(props){
         }
     ])
     
-     const handleChange = (event) =>{
+    const handleChange = (event) =>{
         const { name, value } = event.target;
         if(name === "selectType"){
             setSelectType(value)

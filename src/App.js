@@ -31,9 +31,10 @@ function App() {
             <Router history={hist}>
               <BrowserRouter>
                   <Switch>
-                    <Route path="/admin" component={Admin} />
-                    <Route path="/user" component={User} />
+                    {/* <Route path="/admin" component={Admin} />
+                    <Route path="/user" component={User} /> */}
                     <Route path="/บันทึกเวลา" component={Record} />
+                    <Route path="/" component={User} />
                     {/* <Route path="/login" component={Login} /> */}
                     {/* <Redirect from="/" to="/login" /> */}
                   </Switch>
