@@ -46,7 +46,8 @@ function User(props){
         name_title: null
     });
     
-    const type = "ADMIN";
+    // const type = "ADMIN";
+    const type = "USER";
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);

@@ -5,12 +5,19 @@ import Typography from "@material-ui/core/Typography";
 import Button from '@material-ui/core/Button';
 import { NavLink } from "react-router-dom";
 import ListItem from '@material-ui/core/ListItem';
+// icon
+import DateRangeIcon from '@material-ui/icons/DateRange';
+import QueryBuilderIcon from '@material-ui/icons/QueryBuilder';
+import RestoreIcon from '@material-ui/icons/Restore'; 
+import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
+import EventIcon from '@material-ui/icons/Event';
 
 import Clock_date from "../hooks/Clock_date"
 import Clock_time from "../hooks/Clock_time"
 
 function Home_user(props){
-    const type = "ADMIN";
+    // const type = "ADMIN";
+    const type = "USER";
 
     return(
         <Grid
@@ -36,8 +43,14 @@ function Home_user(props){
                             justify="flex-start"
                             alignItems="flex-start"
                         >
-                            <Clock_date ></Clock_date>
-                            <Clock_time ></Clock_time>
+                            <Grid container direction="row">
+                                <DateRangeIcon style={{marginTop: 30, marginRight:20}}/>
+                                <Clock_date ></Clock_date>
+                            </Grid>
+                            <Grid container direction="row">
+                                <QueryBuilderIcon style={{marginRight:20}}/>
+                                <Clock_time ></Clock_time>
+                            </Grid>
                         </Grid>
                     </Grid>
                 </Grid>
@@ -92,6 +105,7 @@ function Home_user(props){
                         >
                             <NavLink to="/ประวัติการลงเวลา" style={{ textDecoration: 'none' }}>
                                 <ListItem button style={{borderRadius:10}} >
+                                    <RestoreIcon style={{color:"BLACK", marginRight:20}}/>
                                     <Typography style={{color:"BLACK",fontSize:"1.5em"}}>
                                         ดูประวัติการลงเวลาเข้า - ออก
                                     </Typography>
@@ -124,7 +138,7 @@ function Home_user(props){
                     type === "ADMIN" ? (
                         <div>
                             <Typography style={{color:"RED",fontSize:"1.3em",marginTop:30}}>
-                                เพื่มเติม
+                                การจัดการ
                             </Typography>
                             <Grid
                                 container
@@ -141,6 +155,7 @@ function Home_user(props){
                                     >
                                         <NavLink to="/รายงานการลงเวลา" style={{ textDecoration: 'none' }}>
                                             <ListItem button style={{borderRadius:10}} >
+                                                <LibraryBooksIcon style={{color:"BLACK", marginRight:20}}/>
                                                 <Typography style={{color:"BLACK",fontSize:"1.5em"}}>
                                                     ดูรายงานการลงเวลาเข้า - ออก
                                                 </Typography>
@@ -148,6 +163,7 @@ function Home_user(props){
                                         </NavLink>
                                         <NavLink to="/จัดปฏิทินการทำงาน" style={{ textDecoration: 'none' }}>
                                             <ListItem button style={{borderRadius:10}} >
+                                                <EventIcon style={{color:"BLACK", marginRight:20}}/>
                                                 <Typography style={{color:"BLACK",fontSize:"1.5em"}}>
                                                     จัดปฏิทินการทำงาน
                                                 </Typography>
