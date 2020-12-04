@@ -4,6 +4,7 @@ import { Switch, Route, Redirect } from "react-router-dom";
 import { connect } from 'react-redux';
 import decode from 'jwt-decode';
 import routes from "../routes.js";
+import { API } from '../url';
 
 import HomePage from '../views/Home_user'
 import LeaveRecord from '../views/LeaveRecord'
@@ -36,53 +37,91 @@ function User(props){
     const [mobileOpen, setMobileOpen] = useState(false);
     const [currentUser, setCurrentUser] = useState({
         user_id: null,
-        fullname: null,
-        username: null,
-        faculty_id: null,
-        type_name: null,
-        tel: null,
-        email: null,
-        position: null,
-        name_title: null
+        name: null,
+        position_eng: null,
+        position_th: null,
+        type_name: null
     });
-    
+    const [position_eng, setPosition_Eng] = useState("");
+
     // const type = "ADMIN";
-    const type = "USER";
+    // const type = "USER";
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
     }
 
     useEffect(() => {
-    }, [])
+        const jwt = JSON.parse(localStorage.getItem('token-jwt'));
+        if(!jwt){
+            props.history.push('/login');
+        }
+        const decodetoken = decode(jwt)
+        setPosition_Eng(decodetoken.position_eng)
+        if(decodetoken.type === "ADMIN"){
+            props.history.push('/บันทึกเวลา');
+        }
+        else if(decodetoken.position_eng === "MANAGER"){
+            API.get('api/checkTokenManager',{
+                headers: {
+                  Authorization: `Bearer ${jwt}`
+                }
+              })
+                .then((res) => {
+                    const token = jwt;
+                    const decodetoken = decode(token)
+                    // console.log(decodetoken)
+                    setCurrentUser({
+                        user_id: decodetoken.sub,
+                        name: decodetoken.name,
+                        position_eng: decodetoken.position_eng,
+                        position_th: decodetoken.position_th,
+                        type_name: decodetoken.type
+                    });
+                    console.log("asd")
+                    props.addUserAtStore(decodetoken);
+                }).catch((error) => {
+                    localStorage.removeItem("token-jwt");
+                    props.history.push('/login');
+                });
+        }
+        else {
+            API.get('api/checkToken',{
+                headers: {
+                  Authorization: `Bearer ${jwt}`
+                }
+              })
+                .then((res) => {
+                    const token = jwt;
+                    const decodetoken = decode(token)
+                    setCurrentUser({
+                        user_id: decodetoken.sub,
+                        name: decodetoken.name,
+                        position_eng: decodetoken.position_eng,
+                        position_th: decodetoken.position_th,
+                        type_name: decodetoken.type
+                    });
+                    console.log("asd")
+                    props.addUserAtStore(decodetoken);
+                }).catch((error) => {
+                    localStorage.removeItem("token-jwt");
+                    props.history.push('/login');
+                });
+        }
+    },[] )
 
     return(
         <div>
-            {/* <Sidebar_user
-                handleDrawerToggle={handleDrawerToggle}
-                mobileOpen={mobileOpen}
-            /> */}
             <Navi_user
                 handleDrawerToggle={handleDrawerToggle}
                 history={props.history}
             />
             {
-                type === "USER" ? (
+                position_eng === "MANAGER" ? (
                     <main className={classes.content}>
                         <div className={classes.toolbar} />
                         <Switch>
-                            <Route path="/หน้าหลัก" component={HomePage} />
-                            <Route path="/ประวัติการลงเวลา" component={History_Record} />
-                            <Route path="/ปฏิทินการทำงาน" component={CalendarPage} />
-                            <Route path="/เพื่มบันทึกการลา" component={LeaveRecord} />
-                            <Redirect from="/" to="/หน้าหลัก" />
-                        </Switch>
-                    </main>
-                ) : (
-                    <main className={classes.content}>
-                        <div className={classes.toolbar} />
-                        <Switch>
-                            <Route path="/หน้าหลัก" component={HomePage} />
+                            <Route path="/หน้าหลัก" component={HomePage} position_eng={position_eng}/>
                             <Route path="/ประวัติการลงเวลา" component={History_Record} />
                             <Route path="/รายงานการลงเวลา" component={Report_Record} />
                             <Route path="/จัดปฏิทินการทำงาน" component={ManageCalendar} />
@@ -91,7 +130,18 @@ function User(props){
                             <Route path="/ปรับปรุงเวลา" component={Update_Record} />
                             <Route path="/ดูเงินเดือนพนักงาน" component={Salary} />
                             <Route path="/จัดการข้อมูลพนักงาน" component={Manage_User} />
-                            <Redirect from="/" to="/หน้าหลัก" />
+                            {/* <Redirect from="/" to="/หน้าหลัก" /> */}
+                        </Switch>
+                    </main>
+                ) : (
+                    <main className={classes.content}>
+                        <div className={classes.toolbar} />
+                        <Switch>
+                            <Route path="/หน้าหลัก" component={HomePage} position_eng={position_eng}/>
+                            <Route path="/ประวัติการลงเวลา" component={History_Record} />
+                            <Route path="/ปฏิทินการทำงาน" component={CalendarPage} />
+                            <Route path="/เพื่มบันทึกการลา" component={LeaveRecord} />
+                            {/* <Redirect from="/" to="/หน้าหลัก" /> */}
                         </Switch>
                     </main>
                 )
@@ -100,4 +150,17 @@ function User(props){
     )
 }
 
-export default User;
+const mapDispatchToProps = dispatch => {
+    return {
+        addUserAtStore : (newUserData) => {
+            return dispatch({type: 'ADD_USER', playload: newUserData})
+        } 
+    }
+}
+
+const mapStateToProps = state => {
+    return {
+        userFromStore : state.user
+    }
+}
+export default connect(mapStateToProps, mapDispatchToProps)(User);

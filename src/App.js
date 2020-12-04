@@ -11,6 +11,7 @@ import { createBrowserHistory } from "history";
 import Admin from './Layout/Admin'
 import User from './Layout/User'
 import Record from './views/Record'
+import Login from './views/Login'
 
 import './css/App.css';
 
@@ -34,8 +35,8 @@ function App() {
                     {/* <Route path="/admin" component={Admin} />
                     <Route path="/user" component={User} /> */}
                     <Route path="/บันทึกเวลา" component={Record} />
+                    <Route path="/login" component={Login} />
                     <Route path="/" component={User} />
-                    {/* <Route path="/login" component={Login} /> */}
                     {/* <Redirect from="/" to="/login" /> */}
                   </Switch>
               </BrowserRouter>

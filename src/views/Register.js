@@ -7,19 +7,40 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import Typography from "@material-ui/core/Typography";
 import MenuItem from '@material-ui/core/MenuItem';
+import { API } from '../url';
 
 function Register(props){
     const [open, setOpen] = useState(false);
     const [dataRegister, setDataRegister] = useState({
-        fullname:"",
+        password: "",
+        confirmpassword: "",
+        name:"",
         tel: "",
-        idcardnumber: "",
-        type: "",
-        position: "",
-        department: "",
-        salaryRate: null
+        person_id: "",
+        position_id: "",
+        salary: 0
     })
-    const typeEmployee = ["พนักงานประจำ","พาร์ทไทม์"];
+    const [resultRegister, setResultRegister] = useState({
+        id: '',
+        name: '',
+        tel: '',
+    })
+    const [position, setPosition] = useState([]);
+
+    useEffect(() => {
+        var jwt = JSON.parse(localStorage.getItem('token-jwt'));
+        // const decodetoken = decode(jwt)
+        API.get(`api/getdataforregister`,{
+            headers: {
+              Authorization: `Bearer ${jwt}`
+            }
+          })
+            .then((res) => {
+                setPosition(res.data.data)
+            }).catch((error) => {
+
+            });
+    },[] )
 
     const handleClose = () => {
       setOpen(false);
@@ -37,7 +58,23 @@ function Register(props){
     const handleSubmit = (event) => {
         event.preventDefault();
         console.log(dataRegister)
-        setOpen(true);
+        var jwt = JSON.parse(localStorage.getItem('token-jwt'));
+        API.post(`api/register`,dataRegister, {
+            headers: {
+              Authorization: `Bearer ${jwt}`
+            }
+          })
+            .then((res) => {
+                setResultRegister({
+                    id: res.data.message.id,
+                    name: res.data.message.name,
+                    tel: res.data.message.tel
+                });
+                setOpen(true);
+                console.log(res.data)
+            }).catch((error) => {
+
+            });
     }
 
     return(
@@ -50,14 +87,42 @@ function Register(props){
             <Grid xs={12} sm={6} md={4} style={{ backgroundColor: "WHITE", padding: "30px 5% 30px 5%", borderRadius: 6,boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)"}}>
                 <Grid  item xs={12} sm={12} md={12}>
                     <TextField
+                        label={<div style={{fontSize:"1.5em",fontWeight:"bold",color:"BLACK",marginTop:-6}}>รหัสผ่าน</div>}
+                        fullWidth
+                        margin="normal"
+                        inputProps={{style: {fontSize: "1.2em"}}}
+                        InputLabelProps={{shrink: true}}
+                        variant="outlined"
+                        name="password"
+                        type="password"
+                        value={dataRegister.password}
+                        onChange={handleChange}
+                    />
+                </Grid>
+                <Grid  item xs={12} sm={12} md={12}>
+                    <TextField
+                        label={<div style={{fontSize:"1.5em",fontWeight:"bold",color:"BLACK",marginTop:-6}}>ยืนยันรหัสผ่าน</div>}
+                        fullWidth
+                        margin="normal"
+                        inputProps={{style: {fontSize: "1.2em"}}}
+                        InputLabelProps={{shrink: true}}
+                        variant="outlined"
+                        name="confirmpassword"
+                        type="password"
+                        value={dataRegister.confirmpassword}
+                        onChange={handleChange}
+                    />
+                </Grid>
+                <Grid  item xs={12} sm={12} md={12}>
+                    <TextField
                         label={<div style={{fontSize:"1.5em",fontWeight:"bold",color:"BLACK",marginTop:-6}}>ชื่อ-นามสกุล</div>}
                         fullWidth
                         margin="normal"
                         inputProps={{style: {fontSize: "1.2em"}}}
                         InputLabelProps={{shrink: true}}
                         variant="outlined"
-                        name="fullname"
-                        value={dataRegister.fullname}
+                        name="name"
+                        value={dataRegister.name}
                         onChange={handleChange}
                     />
                 </Grid>
@@ -82,56 +147,30 @@ function Register(props){
                         inputProps={{style: {fontSize: "1.2em"}}}
                         InputLabelProps={{shrink: true}}
                         variant="outlined"
-                        name="idcardnumber"
-                        value={dataRegister.idcardnumber}
+                        name="person_id"
+                        value={dataRegister.person_id}
                         onChange={handleChange}
                     />
                 </Grid>
                 <Grid  item xs={12} sm={12} md={12}>
                     <TextField
-                        label={<div style={{fontSize:"1.5em",fontWeight:"bold",color:"BLACK",marginTop:-6}}>ประเภทพนักงาน</div>}
+                        label={<div style={{fontSize:"1.5em",fontWeight:"bold",color:"BLACK",marginTop:-6}}>ตำแหน่ง</div>}
                         fullWidth
                         select
                         margin="normal"
                         inputProps={{style: {fontSize: "1.2em"}}}
                         InputLabelProps={{shrink: true}}
                         variant="outlined"
-                        name="type"
-                        value={dataRegister.type}
+                        name="position_id"
+                        value={dataRegister.position_id}
                         onChange={handleChange}
                     >
-                        {typeEmployee.map((option) => (
-                            <MenuItem value={option}>
-                                {option}
+                        {position.map((option) => (
+                            <MenuItem value={option.position_id}>
+                                {option.position_th}
                             </MenuItem>
                         ))}
                     </TextField>
-                </Grid>
-                <Grid  item xs={12} sm={12} md={12}>
-                    <TextField
-                        label={<div style={{fontSize:"1.5em",fontWeight:"bold",color:"BLACK",marginTop:-6}}>ตำแหน่ง</div>}
-                        fullWidth
-                        margin="normal"
-                        inputProps={{style: {fontSize: "1.2em"}}}
-                        InputLabelProps={{shrink: true}}
-                        variant="outlined"
-                        name="position"
-                        value={dataRegister.position}
-                        onChange={handleChange}
-                    />
-                </Grid>
-                <Grid  item xs={12} sm={12} md={12}>
-                    <TextField
-                        label={<div style={{fontSize:"1.5em",fontWeight:"bold",color:"BLACK",marginTop:-6}}>แผนก</div>}
-                        fullWidth
-                        margin="normal"
-                        inputProps={{style: {fontSize: "1.2em"}}}
-                        InputLabelProps={{shrink: true}}
-                        variant="outlined"
-                        name="department"
-                        value={dataRegister.department}
-                        onChange={handleChange}
-                    />
                 </Grid>
                 <Grid  item xs={12} sm={12} md={12}>
                     <TextField
@@ -141,8 +180,8 @@ function Register(props){
                         inputProps={{style: {fontSize: "1.2em"}}}
                         InputLabelProps={{shrink: true}}
                         variant="outlined"
-                        name="salaryRate"
-                        value={dataRegister.salaryRate}
+                        name="salary"
+                        value={dataRegister.salary}
                         onChange={handleChange}
                     />
                 </Grid>
@@ -179,16 +218,13 @@ function Register(props){
                             </Typography>
                         </Grid>
                         <Typography style={{color:"BLACK",fontSize:"1.2em"}}>   
-                            รหัสพนักงาน : 
+                            รหัสพนักงาน : {resultRegister.id}
                         </Typography>
                         <Typography style={{color:"BLACK",fontSize:"1.2em"}}>   
-                            ชื่อ-สกุล : {dataRegister.fullname}
+                            ชื่อ-สกุล : {resultRegister.name}
                         </Typography>
                         <Typography style={{color:"BLACK",fontSize:"1.2em"}}>   
-                            ตำแหน่ง : {dataRegister.position}
-                        </Typography>
-                        <Typography style={{color:"BLACK",fontSize:"1.2em"}}>   
-                            แผนก: {dataRegister.department}
+                            เบอร์โทร : {resultRegister.tel}
                         </Typography>
                     </DialogContent>
                     <DialogActions>

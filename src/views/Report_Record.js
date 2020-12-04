@@ -4,75 +4,38 @@ import MaterialTable from "material-table";
 import Button from '@material-ui/core/Button';
 import DateFnsUtils from '@date-io/date-fns';
 import {MuiPickersUtilsProvider,KeyboardDatePicker} from "@material-ui/pickers";
+import { API } from '../url';
+import { connect } from 'react-redux';
+import decode from 'jwt-decode';
 
 function Report_Record(props){
     const [datatable, setDatatable] = useState([     {
-        userId: "123456",
-        fullname: "นายขยัน  ตรงเวลา",
-        position: "AR",
-        department: "บัญชี",
-        time_in: "13:45:32",
-        time_out: "20:45:32",
-        sumtime: "7 ชม."
-     },
-     {
-        userId: "153513",
-        fullname: "นายทนา  วันวันดี",
-        position: "AR",
-        department: "บัญชี",
-        time_in: "13:45:32",
-        time_out: "20:45:32",
-        sumtime: "7 ชม."
-     },
-     {
-        userId: "786425",
-        fullname: "นายธงชัย  รักชาติ",
-        position: "AR",
-        department: "บัญชี",
-        time_in: "13:45:32",
-        time_out: "20:45:32",
-        sumtime: "7 ชม."
-     },
-    {
-        userId: "984623",
-        fullname: "นายทักทาย  สวัสดีจ้า",
-        position: "AR",
-        department: "บัญชี",
-        time_in: "13:45:32",
-        time_out: "20:45:32",
-        sumtime: "7 ชม."
-     },
-     {
-        userId: "744152",
-        fullname: "นายยักษา  มามาเร็ว",
-        position: "AR",
-        department: "บัญชี",
-        time_in: "13:45:32",
-        time_out: "20:45:32",
-        sumtime: "7 ชม."
-    },
-    {
-        userId: "744152",
-        fullname: "นายยักษา  มามาเร็ว",
-        position: "AR",
-        department: "บัญชี",
-        time_in: "13:45:32",
-        time_out: "20:45:32",
-        sumtime: "7 ชม."
-        },
-     {
-        userId: "356124",
-        fullname: "นายนงนม  ไปวันทา",
-        position: "AR",
-        department: "บัญชี",
-        time_in: "13:45:32",
-        time_out: "20:45:32",
-        sumtime: "7 ชม."
-    }
+        date: "",
+        name: "",
+        position_th: "",
+        time_in: "",
+        time_out: "",
+        time_sum: ""
+     }
     ]);
     const [startDate, setStartDate] = React.useState(new Date());
     const [endDate, setEndDate] = React.useState(new Date());
     
+    useEffect(() => {
+        var jwt = JSON.parse(localStorage.getItem('token-jwt'));
+        // const decodetoken = decode(jwt)
+        API.get(`api/record/All`,{
+            headers: {
+              Authorization: `Bearer ${jwt}`
+            }
+          })
+            .then((res) => {
+                setDatatable(res.data.data)
+            }).catch((error) => {
+
+            });
+    },[] )
+
     const handleStartDateChange = (date) => {
         setStartDate(date);
     };
@@ -82,6 +45,26 @@ function Report_Record(props){
 
     const searchUpdate = (event) => {
         event.preventDefault();
+        console.log(startDate)
+        console.log(endDate)
+        var jwt = JSON.parse(localStorage.getItem('token-jwt'));
+        API.get(`api/record/AllByDate/${convert(startDate)}/${convert(endDate)}`,{
+            headers: {
+              Authorization: `Bearer ${jwt}`
+            }
+          })
+            .then((res) => {
+                setDatatable(res.data.data)
+            }).catch((error) => {
+
+            });
+    }
+
+    function convert(str) {
+        var date = new Date(str),
+          mnth = ("0" + (date.getMonth() + 1)).slice(-2),
+          day = ("0" + date.getDate()).slice(-2);
+        return [ date.getFullYear(), mnth, day].join("-");
     }
 
     return(
@@ -140,13 +123,12 @@ function Report_Record(props){
                 <MaterialTable
                     title=""
                     columns={[
-                        { title: "รหัสพนักงาน", field: "userId",headerStyle: {fontWeight:"bold",fontSize:"1.2em"}},
-                        { title: "ชื่อ-สกุล", field: "fullname",headerStyle: {fontWeight:"bold",fontSize:"1.2em"}},
-                        { title: "ตำแหน่ง", field: "position",headerStyle: {fontWeight:"bold",fontSize:"1.2em"}},
-                        { title: "แผนก", field: "department",headerStyle: {fontWeight:"bold",fontSize:"1.2em"}},
+                        { title: "วันที่", field: "date",headerStyle: {fontWeight:"bold",fontSize:"1.2em"}},
+                        { title: "ชื่อ-สกุล", field: "name",headerStyle: {fontWeight:"bold",fontSize:"1.2em"}},
+                        { title: "ตำแหน่ง", field: "position_th",headerStyle: {fontWeight:"bold",fontSize:"1.2em"}},
                         { title: "เวลาเข้างาน", field: "time_in",headerStyle: {fontWeight:"bold",fontSize:"1.2em"}},
                         { title: "เวลาออกงาน", field: "time_out",headerStyle: {fontWeight:"bold",fontSize:"1.2em"}},
-                        { title: "รวมเวลางาน", field: "sumtime",cellStyle: {textAlign: "center"},headerStyle: {textAlign: 'center',fontWeight:"bold",fontSize:"1.2em"}},
+                        { title: "รวมเวลางาน", field: "time_sum",cellStyle: {textAlign: "center"},headerStyle: {textAlign: 'center',fontWeight:"bold",fontSize:"1.2em"}},
                         // { title: "จำนวนรายการ", field: "category_sum",cellStyle: {textAlign: "center"},headerStyle: {textAlign: 'center'}}, 
                     ]}
                     data={datatable}

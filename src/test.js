@@ -2,6 +2,18 @@ import React, { useState, useEffect } from 'react';
 import Grid from '@material-ui/core/Grid';
 
 function test(props){
+    // useEffect(() => {
+        // API.get('api/checkTokenManager',{
+        //     headers: {
+        //       Authorization: `Bearer ${jwt}`
+        //     }
+        //   })
+        //     .then((res) => {
+
+        //     }).catch((error) => {
+
+        //     });
+    // },[] )
 
     return(
         <Grid

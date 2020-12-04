@@ -18,6 +18,8 @@ import DoneIcon from '@material-ui/icons/Done';
 import Button from '@material-ui/core/Button';
 import DateFnsUtils from '@date-io/date-fns';
 import {MuiPickersUtilsProvider,KeyboardDatePicker,TimePicker} from "@material-ui/pickers";
+import { API } from '../url';
+import { getParsedDate } from '../function/ParsedDate'
 
 const useStyles = makeStyles({
     table: {
@@ -29,75 +31,64 @@ const useStyles = makeStyles({
 function Update_Record(props){
     const classes = useStyles();
     const [tableData, setTableData] = useState([{
-        userId: "123456",
-        fullname: "นายขยัน  ตรงเวลา",
-        time_in: "13:45:32",
-        time_out: "20:45:32",
-        sumtime: "7 ชม.",
-        OT: 2
-     },
-     {
-        userId: "153513",
-        fullname: "นายทนา  วันวันดี",
-        time_in: "13:45:32",
-        time_out: "20:45:32",
-        sumtime: "7 ชม.",
-        OT: 0
-     },
-     {
-        userId: "786425",
-        fullname: "นายธงชัย  รักชาติ",
-        time_in: "13:45:32",
-        time_out: "20:45:32",
-        sumtime: "7 ชม.",
-        OT: 0
-     },
-    {
-        userId: "984623",
-        fullname: "นายทักทาย  สวัสดีจ้า",
-        time_in: "13:45:32",
-        time_out: "20:45:32",
-        sumtime: "7 ชม.",
-        OT: 0
-     },
-     {
-        userId: "744152",
-        fullname: "นายยักษา  มามาเร็ว",
-        time_in: "13:45:32",
-        time_out: "20:45:32",
-        sumtime: "7 ชม.",
-        OT: 1
-    },
-    {
-        userId: "744152",
-        fullname: "นายยักษา  มามาเร็ว",
-        time_in: "13:45:32",
-        time_out: "20:45:32",
-        sumtime: "7 ชม.",
-        OT: 4
-        },
-     {
-        userId: "356124",
-        fullname: "นายนงนม  ไปวันทา",
-        time_in: "13:45:32",
-        time_out: "20:45:32",
-        sumtime: "7 ชม.",
-        OT: 0
-    }])
+        user_id: "",
+        date: "",
+        name: "",
+        position_th: "",
+        time_in: "",
+        time_out: "",
+        time_sum: ""
+     }
+     ])
     const [editIdx, setEditIdx] = useState(-1)
     const [oldData, setOldData] = useState([])
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
-    const emptyRows = rowsPerPage - Math.min(rowsPerPage, tableData.length - page * rowsPerPage);
     const [startDate, setStartDate] = React.useState(new Date());
 
-    const handleChangeTable = (index) => (event) => {
-        const { name, value } = event.target;
+    useEffect(() => {
+        callApi();
+    },[] )
+
+    const callApi = () =>{
+        var jwt = JSON.parse(localStorage.getItem('token-jwt'));
+        // const decodetoken = decode(jwt)
+        API.get(`api/record/All`,{
+            headers: {
+              Authorization: `Bearer ${jwt}`
+            }
+          })
+            .then((res) => {
+                setTableData(res.data.data)
+            }).catch((error) => {
+
+            });
+    }
+
+    function convert(str) {
+        var date = new Date(str),
+          mnth = ("0" + (date.getMonth() + 1)).slice(-2),
+          day = ("0" + date.getDate()).slice(-2);
+        return [ date.getFullYear(), mnth, day].join("-");
+    }
+
+    const handleChangeIn = (event) => {
         let newData = [...tableData]
-        newData[index] = {
-            ...newData[index],
-            [name] : value
+        newData[editIdx] = {
+            ...newData[editIdx],
+            time_in : getParsedDate(event)
         }
+        console.log(editIdx)
+        setTableData(newData);
+    }
+
+    const handleChangeOut = (event) => {
+        let newData = [...tableData]
+        newData[editIdx] = {
+            ...newData[editIdx],
+            time_out : getParsedDate(event)
+        }
+        console.log(editIdx)
         setTableData(newData);
     }
 
@@ -116,7 +107,19 @@ function Update_Record(props){
     }
 
     const submitEditing = (i) => {
-        // console.log(tableData[i])
+        console.log(tableData[i])
+        var jwt = JSON.parse(localStorage.getItem('token-jwt'));
+        API.post(`api/record/update`,tableData[i], {
+            headers: {
+              Authorization: `Bearer ${jwt}`
+            }
+          })
+            .then((res) => {
+                callApi();
+                setEditIdx(-1)
+            }).catch((error) => {
+
+            });
     }
 
     const stopEditing = (i) => {
@@ -127,19 +130,32 @@ function Update_Record(props){
     }
 
     const handleStartDateChange = (date) => {
+        console.log(date)
         setStartDate(date);
     };
+    
 
     const searchUpdate = (event) => {
         event.preventDefault();
+        var jwt = JSON.parse(localStorage.getItem('token-jwt'));
+        API.get(`api/record/AllByDate/${convert(startDate)}/${convert(startDate)}`,{
+            headers: {
+              Authorization: `Bearer ${jwt}`
+            }
+          })
+            .then((res) => {
+                setTableData(res.data.data)
+            }).catch((error) => {
+
+            });
     }
     
     const row = (x, index) => {
         const currentlyEditing = editIdx === index;
         return(
-            <TableRow key={x.userId}>
-                <TableCell>{x.userId}</TableCell>
-                <TableCell>{x.fullname}</TableCell>
+            <TableRow key={x.seq}>
+                <TableCell>{x.id}</TableCell>
+                <TableCell>{x.name}</TableCell>
                 <TableCell>
                     { currentlyEditing ? (
                         <div style={{whiteSpace:"nowrap"}}>
@@ -150,8 +166,9 @@ function Update_Record(props){
                                     ampm={false}
                                     format="HH:mm:ss"
                                     fullWidth
-                                    value={x.time_in}
-                                    onChange={handleStartDateChange}
+                                    name="time_in"
+                                    value={new Date(convert(startDate)+" "+x.time_in)}
+                                    onChange={handleChangeIn}
                                 />
                             </MuiPickersUtilsProvider>
                         </div>
@@ -168,16 +185,16 @@ function Update_Record(props){
                                     ampm={false}
                                     format="HH:mm:ss"
                                     fullWidth
-                                    value={x.time_out}
-                                    onChange={handleStartDateChange}
+                                    name="time_out"
+                                    value={new Date(convert(startDate)+" "+x.time_out)}
+                                    onChange={handleChangeOut}
                                 />
                             </MuiPickersUtilsProvider>
                         </div>
                     ) : x.time_out
                 }
                 </TableCell>
-                <TableCell>{x.sumtime}</TableCell>
-                <TableCell>{x.OT}</TableCell>
+                <TableCell>{x.time_sum}</TableCell>
                 <TableCell>
                     { currentlyEditing ? (
                         <div style={{whiteSpace:"nowrap"}}>
@@ -239,7 +256,6 @@ function Update_Record(props){
                                 <TableCell style={{fontWeight:"bold",fontSize:"20px"}}>เวลาเข้างาน</TableCell>
                                 <TableCell style={{fontWeight:"bold",fontSize:"20px"}}>เวลาออกงาน</TableCell>
                                 <TableCell style={{fontWeight:"bold",fontSize:"20px"}}>รวมเวลางาน</TableCell>
-                                <TableCell style={{fontWeight:"bold",fontSize:"20px"}}>OT.</TableCell>
                                 <TableCell></TableCell>
                             </TableRow>
                         </TableHead>

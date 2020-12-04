@@ -102,8 +102,9 @@ export default [
   {
     id: 14,
     title: 'Today',
-    start: new Date(new Date().setHours(new Date().getHours() - 3)),
-    end: new Date(new Date().setHours(new Date().getHours() + 3)),
+    detail: "ลาป่วย",
+    start: new Date("2020-12-01 00:00:00"),
+    end: new Date("2020-12-02 00:00:00"),
   },
   {
     id: 15,

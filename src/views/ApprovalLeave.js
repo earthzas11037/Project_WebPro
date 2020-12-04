@@ -6,6 +6,7 @@ import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from "@material-ui/core/Typography";
 import Button from '@material-ui/core/Button';
+import { API } from '../url';
 
 const useStyles = makeStyles({
     root: {
@@ -26,35 +27,85 @@ function ApprovalLeave(props){
     const classes = useStyles();
     const [waitapproval, setWaitapproval] = useState([
         {
-            fullname: "นายนงนม  ไปวันทา",
-            dateleave:  "15/12/63",
-            dateleave_to: "16/12/63",
-            sumdate: 1,
-            type: "ลาป่วย",
-            detail: "นัดพบแพทย์"
+            seq: "",
+            user_id: "",
+            name: "",
+            date_start:  "",
+            date_end: "",
+            sumdate: 0,
+            leave_type: "",
+            detail: ""
         },
-        {
-            fullname: "นายนงนม  ไปวันทา",
-            dateleave:  "15/11/63",
-            dateleave_to: "16/11/63",
-            sumdate: 1,
-            type: "ลาป่วย",
-            detail: "นัดพบแพทย์"
-        },
-        {
-            fullname: "นายนงนม  ไปวันทา",
-            dateleave:  "15/10/63",
-            dateleave_to: "16/10/63",
-            sumdate: 1,
-            type: "ลาป่วย",
-            detail: "นัดพบแพทย์"
-        }
+
      ])
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
+    useEffect(() => {
+        callApi();
+    },[] )
+
+    const callApi = () =>{
+        var jwt = JSON.parse(localStorage.getItem('token-jwt'));
+        // const decodetoken = decode(jwt)
+        API.get(`api/leaveRecord/AllWaitForApproval`,{
+            headers: {
+              Authorization: `Bearer ${jwt}`
+            }
+          })
+            .then((res) => {
+                setWaitapproval(res.data.data)
+            }).catch((error) => {
+
+            });
     }
 
+    const approve = (seq) => (event) => {
+        event.preventDefault();
+        var jwt = JSON.parse(localStorage.getItem('token-jwt'));
+        var data = {
+            seq: seq
+        }
+        API.post(`api/leaveRecord/approve`, data,{
+            headers: {
+              Authorization: `Bearer ${jwt}`
+            }
+          })
+            .then((res) => {
+                callApi();
+            }).catch((error) => {
+
+            });
+    }
+
+    const disapprove = (seq) => (event) => {
+        event.preventDefault();
+        var jwt = JSON.parse(localStorage.getItem('token-jwt'));
+        var data = {
+            seq: seq
+        }
+        API.post(`api/leaveRecord/disapprove`, data, {
+            headers: {
+              Authorization: `Bearer ${jwt}`
+            }
+          })
+            .then((res) => {
+                callApi();
+            }).catch((error) => {
+
+            });
+    }
+    
+    const calculateDate = (date_start, date_end) =>{
+        var date1 = new Date(date_start); 
+        var date2 = new Date(date_end); 
+          
+        // To calculate the time difference of two dates 
+        var Difference_In_Time = date2.getTime() - date1.getTime(); 
+          
+        // To calculate the no. of days between two dates 
+        var Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
+        
+        return Difference_In_Days+1;
+    }
 
     return(
         <Grid
@@ -73,13 +124,13 @@ function ApprovalLeave(props){
                             <Card className={classes.root} variant="outlined">
                                 <CardContent>
                                     <Typography style={{fontSize:"1em"}}>
-                                        ชื่อ-สกุล &emsp; {row.fullname}
+                                        ชื่อ-สกุล &emsp; {row.name}
                                     </Typography>
                                     <Typography style={{fontSize:"1em"}}>
-                                        ลาตั้งแต่วันที่  {row.dateleave} &emsp; ถึงวันที่ {row.dateleave_to} &emsp; รวม {row.sumdate} วัน
+                                        ลาตั้งแต่วันที่  {row.date_start} &emsp; ถึงวันที่ {row.date_end} &emsp; รวม {calculateDate(row.date_start, row.date_end)} วัน
                                     </Typography>
                                     <Typography style={{fontSize:"1em"}}>
-                                        ประเภท : {row.type}
+                                        ประเภท : {row.leave_type}
                                     </Typography>
                                     <Typography style={{fontSize:"1em"}}>
                                         รายละเอียด : {row.detail}
@@ -91,7 +142,7 @@ function ApprovalLeave(props){
                                             variant="outlined" 
                                             color="primary"  
                                             style={{fontSize:"1em",borderRadius:8,marginRight:10}} 
-                                            onClick={handleSubmit}
+                                            onClick={disapprove(row.seq)}
                                         >
                                             ไม่อนุมัติ
                                         </Button>
@@ -99,7 +150,7 @@ function ApprovalLeave(props){
                                             variant="contained" 
                                             color="primary"  
                                             style={{fontSize:"1em",borderRadius:8}} 
-                                            onClick={handleSubmit}
+                                            onClick={approve(row.seq)}
                                         >
                                             อนุมัติ
                                         </Button>

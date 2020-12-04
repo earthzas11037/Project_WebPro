@@ -1,33 +1,11 @@
 const initialState = {
     user:{
         user_id: null,
-        fullname: null,
-        username: null,
-        faculty_id: null,
-        type_name: null,
-        tel: null,
-        email: null,
-        position: null,
-        name_title: null
-    },
-    inbound:{
-        selectFaculty: null,
-        startDate: null,
-        endDate: null,
-        faculty: null
-    },
-    inbound_user:{
-        selectRoom: null,
-        startDate: null,
-        endDate: null,
-        room: null
-    },
-    outbound:{
-        selectFaculty: null,
-        startDate: null,
-        endDate: null,
-        faculty: null
-    },
+        name: null,
+        position_eng: null,
+        position_th: null,
+        type_name: null
+    }
 }
 const reducer = (state = initialState, action) => {
     // const user = state.user;
@@ -35,7 +13,13 @@ const reducer = (state = initialState, action) => {
         case 'ADD_USER':
             const addedState = {
                 ...state,
-                user: action.playload
+                user:{
+                    user_id: action.playload.sub,
+                    name: action.playload.name,
+                    position_eng: action.playload.position_eng,
+                    position_th: action.playload.position_th,
+                    type_name: action.playload.type
+                }
             }
             return addedState;
 

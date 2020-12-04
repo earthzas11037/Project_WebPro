@@ -16,9 +16,9 @@ import EditIcon from '@material-ui/icons/Edit';
 import CloseIcon from '@material-ui/icons/Close';
 import DoneIcon from '@material-ui/icons/Done';
 import Button from '@material-ui/core/Button';
-import DateFnsUtils from '@date-io/date-fns';
-import {MuiPickersUtilsProvider,KeyboardDatePicker,TimePicker} from "@material-ui/pickers";
 import MenuItem from '@material-ui/core/MenuItem';
+import { API } from '../url';
+import { CallToActionSharp } from '@material-ui/icons';
 
 const useStyles = makeStyles({
     table: {
@@ -30,42 +30,40 @@ const useStyles = makeStyles({
 function Manage_User(props){
     const classes = useStyles();
     const [tableData, setTableData] = useState([{
-        userId: "123456",
-        fullname:"นายขยัน  ตรงเวลา",
-        tel: "099999999",
-        idcardnumber: "1110346155513",
-        type: "พนักงานประจำ",
-        position: "AR",
-        department: "บัญชี",
-        salaryRate: 20000
-    },
-    {
-        userId: "123457",
-        fullname:"นายขยัน  ตรงเวลา",
-        tel: "088888888",
-        idcardnumber: "1116103155556",
-        type: "พนักงานประจำ",
-        position: "AR",
-        department: "บัญชี",
-        salaryRate: 18000
-    },
-    {
-        userId: "123458",
-        fullname:"นายขยัน  ตรงเวลา",
-        tel: "088888888",
-        idcardnumber: "1110351110036",
-        type: "พาร์ทไทม์",
-        position: "AR",
-        department: "บัญชี",
-        salaryRate: 42
-    }])
+        id: "",
+        name:"",
+        tel: "",
+        person_id: "",
+        position_id: "",
+        position_th: "",
+        salary: null
+    }
+    ])
     const [editIdx, setEditIdx] = useState(-1)
     const [oldData, setOldData] = useState([])
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const emptyRows = rowsPerPage - Math.min(rowsPerPage, tableData.length - page * rowsPerPage);
     const [startDate, setStartDate] = useState(new Date());
-    const typeEmployee = ["พนักงานประจำ","พาร์ทไทม์"];
+    const [position, setPosition] = useState(['ผู้จัดการ','พนักงานประจำ', 'พนักงานพาร์ทไทม์']);
+
+    useEffect(() => {
+        callApi();
+    },[] )
+
+    const callApi = () =>{
+        var jwt = JSON.parse(localStorage.getItem('token-jwt'));
+        API.get(`api/alluser`,{
+            headers: {
+              Authorization: `Bearer ${jwt}`
+            }
+          })
+            .then((res) => {
+                setTableData(res.data.data)
+            }).catch((error) => {
+
+            });
+    }
 
     const handleChangeTable = (index) => (event) => {
         const { name, value } = event.target;
@@ -73,6 +71,23 @@ function Manage_User(props){
         newData[index] = {
             ...newData[index],
             [name] : value
+        }
+        setTableData(newData);
+    }
+
+    const handleChangePosition = (index) => (event) => {
+        const { name, value } = event.target;
+        let newData = [...tableData]
+        var target = -1;
+        for(var i=0; i< position.length; i++){
+            if(position[i] === value){
+                target = i+1;
+            }
+        }
+        newData[index] = {
+            ...newData[index],
+            position_id : target,
+            position_th : value
         }
         setTableData(newData);
     }
@@ -92,7 +107,19 @@ function Manage_User(props){
     }
 
     const submitEditing = (i) => {
-        // console.log(tableData[i])
+        console.log(tableData[i])
+        var jwt = JSON.parse(localStorage.getItem('token-jwt'));
+        API.post(`api/updateUser`,tableData[i], {
+            headers: {
+              Authorization: `Bearer ${jwt}`
+            }
+          })
+            .then((res) => {
+                setEditIdx(-1)
+                callApi();
+            }).catch((error) => {
+
+            });
     }
 
     const stopEditing = (i) => {
@@ -113,17 +140,17 @@ function Manage_User(props){
     const row = (x, index) => {
         const currentlyEditing = editIdx === index;
         return(
-            <TableRow key={x.userId}>
-                <TableCell>{x.userId}</TableCell>
+            <TableRow key={x.id}>
+                <TableCell>{x.id}</TableCell>
                 <TableCell>
                 { currentlyEditing ? (
                         <TextField
                             type="text"
-                            name="fullname"
-                            value={tableData[index+(page*rowsPerPage)].fullname}
+                            name="name"
+                            value={tableData[index+(page*rowsPerPage)].name}
                             onChange={handleChangeTable(index+(page*rowsPerPage))}
                         />
-                    ) : x.fullname
+                    ) : x.name
                 }
                 </TableCell>
                 <TableCell>
@@ -141,62 +168,40 @@ function Manage_User(props){
                 { currentlyEditing ? (
                         <TextField
                             type="text"
-                            name="idcardnumber"
-                            value={tableData[index+(page*rowsPerPage)].idcardnumber}
+                            name="person_id"
+                            value={tableData[index+(page*rowsPerPage)].person_id}
                             onChange={handleChangeTable(index+(page*rowsPerPage))}
                         />
-                    ) : x.idcardnumber
+                    ) : x.person_id
                 }
                 </TableCell>
                 <TableCell>
                 { currentlyEditing ? (
                         <TextField
                             type="text"
-                            name="type"
+                            name="position_th"
                             select
-                            value={tableData[index+(page*rowsPerPage)].type}
-                            onChange={handleChangeTable(index+(page*rowsPerPage))}
+                            value={tableData[index+(page*rowsPerPage)].position_th}
+                            onChange={handleChangePosition(index+(page*rowsPerPage))}
                         >
-                           {typeEmployee.map((option) => (
+                           {position.map((option) => (
                             <MenuItem value={option}>
                                 {option}
                             </MenuItem>
                             ))} 
                         </TextField>
-                    ) : x.type
+                    ) : x.position_th
                 }
                 </TableCell>
                 <TableCell>
                 { currentlyEditing ? (
                         <TextField
                             type="text"
-                            name="position"
-                            value={tableData[index+(page*rowsPerPage)].position}
+                            name="salary"
+                            value={tableData[index+(page*rowsPerPage)].salary}
                             onChange={handleChangeTable(index+(page*rowsPerPage))}
                         />
-                    ) : x.position
-                }
-                </TableCell>
-                <TableCell>
-                { currentlyEditing ? (
-                        <TextField
-                            type="text"
-                            name="department"
-                            value={tableData[index+(page*rowsPerPage)].department}
-                            onChange={handleChangeTable(index+(page*rowsPerPage))}
-                        />
-                    ) : x.department
-                }
-                </TableCell>
-                <TableCell>
-                { currentlyEditing ? (
-                        <TextField
-                            type="text"
-                            name="salaryRate"
-                            value={tableData[index+(page*rowsPerPage)].salaryRate}
-                            onChange={handleChangeTable(index+(page*rowsPerPage))}
-                        />
-                    ) : x.salaryRate
+                    ) : x.salary
                 }
                 </TableCell>
                 <TableCell>
@@ -252,9 +257,7 @@ function Manage_User(props){
                                 <TableCell style={{fontWeight:"bold",fontSize:"20px"}}>ชื่อ-สกุล</TableCell>
                                 <TableCell style={{fontWeight:"bold",fontSize:"20px"}}>เบอร์โทร</TableCell>
                                 <TableCell style={{fontWeight:"bold",fontSize:"20px"}}>เลขบัตรประชาชน</TableCell>
-                                <TableCell style={{fontWeight:"bold",fontSize:"20px"}}>ประเภทพนักงาน</TableCell>
                                 <TableCell style={{fontWeight:"bold",fontSize:"20px"}}>ตำแหน่ง</TableCell>
-                                <TableCell style={{fontWeight:"bold",fontSize:"20px"}}>แผนก</TableCell>
                                 <TableCell style={{fontWeight:"bold",fontSize:"20px"}}>อัตราเงินเดือน</TableCell>
                                 <TableCell></TableCell>
                             </TableRow>

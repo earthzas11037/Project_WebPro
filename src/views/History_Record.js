@@ -1,53 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import Grid from '@material-ui/core/Grid';
 import MaterialTable from "material-table";
+import { API } from '../url';
+import { connect } from 'react-redux';
+import decode from 'jwt-decode';
 
 function History_Record(props){
     const [datatable, setDatatable] = useState([
         {
-           date: "13/12/63",
-           time_in: "13:45:32",
-           time_out: "20:45:32",
-           sumtime: "7 ชม."
-        },
-        {
-           date: "14/12/63",
-           time_in: "13:45:32",
-           time_out: "20:45:32",
-           sumtime: "7 ชม."
-        },
-        {
-           date: "15/12/63",
-           time_in: "13:45:32",
-           time_out: "20:45:32",
-           sumtime: "7 ชม."
-        },
-       {
-           date: "16/12/63",
-           time_in: "13:45:32",
-           time_out: "20:45:32",
-           sumtime: "7 ชม."
-        },
-        {
-           date: "17/12/63",
-           time_in: "13:45:32",
-           time_out: "20:45:32",
-           sumtime: "7 ชม."
-       },
-       {
-           date: "18/12/63",
-           time_in: "13:45:32",
-           time_out: "20:45:32",
-           sumtime: "7 ชม."
-           },
-        {
-           date: "19/12/63",
-           time_in: "13:45:32",
-           time_out: "20:45:32",
-           sumtime: "7 ชม."
-       }
+           date: "",
+           time_in: "",
+           time_out: "",
+           time_sum: ""
+        }
    ])
     
+    useEffect(() => {
+        var jwt = JSON.parse(localStorage.getItem('token-jwt'));
+        const decodetoken = decode(jwt)
+        API.get(`api/record/getAll/${decodetoken.sub}`,{
+            headers: {
+              Authorization: `Bearer ${jwt}`
+            }
+          })
+            .then((res) => {
+                setDatatable(res.data.data)
+            }).catch((error) => {
+
+            });
+    },[] )
+
     return(
         <Grid
             container
@@ -59,10 +41,10 @@ function History_Record(props){
                 <MaterialTable
                         title=""
                         columns={[
-                            { title: "วัน/เดือน/ปี", field: "date",headerStyle: {fontWeight:"bold",fontSize:"1.2em"}},
+                            { title: "วันที่", field: "date",headerStyle: {fontWeight:"bold",fontSize:"1.2em"}},
                             { title: "เวลาเข้างาน", field: "time_in",headerStyle: {fontWeight:"bold",fontSize:"1.2em"}},
                             { title: "เวลาออกงาน", field: "time_out",headerStyle: {fontWeight:"bold",fontSize:"1.2em"}},
-                            { title: "รวมเวลางาน", field: "sumtime",cellStyle: {textAlign: "center"},headerStyle: {textAlign: 'center',fontWeight:"bold",fontSize:"1.2em"}},
+                            { title: "รวมเวลางาน(ชม.)", field: "time_sum",cellStyle: {textAlign: "center"},headerStyle: {textAlign: 'center',fontWeight:"bold",fontSize:"1.2em"}},
                             // { title: "จำนวนรายการ", field: "category_sum",cellStyle: {textAlign: "center"},headerStyle: {textAlign: 'center'}}, 
                         ]}
                         data={datatable}
@@ -80,4 +62,9 @@ function History_Record(props){
     )
 }
 
-export default History_Record;
+const mapStateToProps = state => {
+    return {
+        userFromStore : state.user
+    }
+}
+export default connect(mapStateToProps, null)(History_Record);

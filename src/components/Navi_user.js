@@ -9,7 +9,7 @@ import Hidden from "@material-ui/core/Hidden";
 import Button from "@material-ui/core/Button";
 import { connect } from 'react-redux';
 import { NavLink } from "react-router-dom";
-
+import decode from 'jwt-decode';
 
 const useStyles = makeStyles((theme) => ({
       
@@ -29,10 +29,33 @@ const useStyles = makeStyles((theme) => ({
 function Navi_user(props) {
     const classes = useStyles();
     const [pagename, setPagename] = useState("");
+    const [currentUser, setCurrentUser] = useState({
+        user_id: "",
+        name: "",
+        position_eng: "",
+        position_th: "",
+        type_name: ""
+    });
 
     useEffect(() => {
-        setPagename(props.history.location.pathname.split('/')[1])
+        console.log(props.userFromStore)
+        const jwt = JSON.parse(localStorage.getItem('token-jwt'));
+        const decodetoken = decode(jwt)
+        setCurrentUser({
+            user_id: decodetoken.user_id,
+            name: decodetoken.name,
+            position_eng: decodetoken.position_eng,
+            position_th: decodetoken.position_th,
+            type_name: decodetoken.type_name
+        })
+        // setPagename(props.history.location.pathname.split('/')[1])
     }, []);
+
+    const logout = (event) => {
+        event.preventDefault();
+        props.history.push('/login');
+        localStorage.removeItem("token-jwt");
+    }
 
     return (
         <div>
@@ -45,17 +68,23 @@ function Navi_user(props) {
                     alignItems="center"
                   >
                     <Typography style={{color:"BLACK",fontSize:"1.5em"}}>
-                        {pagename}
+                        {/* {pagename} */}
+                        หน้าหลัก
                     </Typography>
                     <Typography style={{color:" #14BF92",fontSize:"2em",fontWeight:"bold"}}>
                         CHECK TIME
                     </Typography>
                     <Typography style={{color:"BLACK",fontSize:"1.5em"}}>
-                        นายขยัน   มาตรงเวลา
+                        {currentUser.name}
                     </Typography>
                     <Typography style={{color:"BLACK",fontSize:"1.2em"}}>
-                        ตำแหน่ง : Account Receivable (AR)   แผนก : บัญชี
+                        ตำแหน่ง : {currentUser.position_th} ({currentUser.position_eng})
                     </Typography>
+                    <Button style={{fontSize:"1em",textAlign:"center",color:" #14BF92",position:"absolute",right:0}}
+                        onClick={logout}
+                    >
+                        ลงชื่อออก
+                    </Button>
                   </Grid>
                 </Toolbar>
             </AppBar>

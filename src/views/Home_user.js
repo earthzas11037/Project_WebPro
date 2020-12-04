@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import Grid from '@material-ui/core/Grid';
 
+import Grid from '@material-ui/core/Grid';
+import { connect } from 'react-redux';
+import decode from 'jwt-decode';
 import Typography from "@material-ui/core/Typography";
 import Button from '@material-ui/core/Button';
 import { NavLink } from "react-router-dom";
@@ -16,8 +18,20 @@ import Clock_date from "../hooks/Clock_date"
 import Clock_time from "../hooks/Clock_time"
 
 function Home_user(props){
-    // const type = "ADMIN";
-    const type = "USER";
+    const [position_eng, setPosition_Eng] = useState("");
+
+    useEffect(() => {
+        // console.log(props.userFromStore);
+        if(props.userFromStore.position_eng === null){
+            const jwt = JSON.parse(localStorage.getItem('token-jwt'));
+            const decodetoken = decode(jwt)
+            setPosition_Eng(decodetoken.position_eng);
+        }
+        else{
+            setPosition_Eng(props.userFromStore.position_eng);
+        }
+
+    },[] )
 
     return(
         <Grid
@@ -112,7 +126,7 @@ function Home_user(props){
                                 </ListItem>
                             </NavLink>
                             {
-                                type === "USER" ? (
+                                position_eng !== "MANAGER" ? (
                                     <div>
                                         <NavLink to="/ปฏิทินการทำงาน" style={{ textDecoration: 'none' }}>
                                             <ListItem button style={{borderRadius:10}} >
@@ -135,7 +149,7 @@ function Home_user(props){
                     </Grid>
                 </Grid>
                 {
-                    type === "ADMIN" ? (
+                    position_eng === "MANAGER" ? (
                         <div>
                             <Typography style={{color:"RED",fontSize:"1.3em",marginTop:30}}>
                                 การจัดการ
@@ -215,4 +229,10 @@ function Home_user(props){
     )
 }
 
-export default Home_user;
+const mapStateToProps = state => {
+    return {
+        userFromStore : state.user
+    }
+}
+export default connect(mapStateToProps, null)(Home_user);
+
