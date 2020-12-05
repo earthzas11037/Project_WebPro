@@ -15,16 +15,18 @@ function Login(props) {
 
     useEffect(() => {
         const jwt = JSON.parse(localStorage.getItem('token-jwt'));
-        const decodetoken = decode(jwt)
-        props.addUserAtStore(decodetoken);
-        if(decodetoken.type === "ADMIN"){
-            props.history.push('/บันทึกเวลา');
-        }
-        else if(decodetoken.position_eng === "MANAGER"){
-            props.history.push('/หน้าหลัก');
-        }
-        else {
-            props.history.push('/หน้าหลัก');
+        if(jwt){
+            const decodetoken = decode(jwt)
+            props.addUserAtStore(decodetoken);
+            if(decodetoken.type === "ADMIN"){
+                props.history.push('/บันทึกเวลา');
+            }
+            else if(decodetoken.position_eng === "MANAGER"){
+                props.history.push('/หน้าหลัก');
+            }
+            else {
+                props.history.push('/หน้าหลัก');
+            }
         }
     },[] )
 

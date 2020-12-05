@@ -8,11 +8,23 @@ import Button from '@material-ui/core/Button';
 import { NavLink } from "react-router-dom";
 import ListItem from '@material-ui/core/ListItem';
 // icon
-import DateRangeIcon from '@material-ui/icons/DateRange';
-import QueryBuilderIcon from '@material-ui/icons/QueryBuilder';
-import RestoreIcon from '@material-ui/icons/Restore'; 
-import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
-import EventIcon from '@material-ui/icons/Event';
+import DateRangeIcon from '@material-ui/icons/DateRange'; //วันที่//
+import QueryBuilderIcon from '@material-ui/icons/QueryBuilder'; //เวลา//
+import RestoreIcon from '@material-ui/icons/Restore'; //ดูประวัติการลงเวลาเข้า - ออก//
+import LibraryBooksIcon from '@material-ui/icons/LibraryBooks'; //ดูรายงานการลงเวลาเข้า - ออก//
+import EventIcon from '@material-ui/icons/Event'; //จัดปฏิทินการทำงาน//
+import GroupAddIcon from '@material-ui/icons/GroupAdd'; //ลงทะเบียนพนักงาน//
+import EventAvailableIcon from '@material-ui/icons/EventAvailable'; //อนุมัติการลา//
+import AvTimerIcon from '@material-ui/icons/AvTimer'; //ปรับปรุงเวลา//
+import MonetizationOnIcon from '@material-ui/icons/MonetizationOn'; //เงินเดือน//
+import PortraitIcon from '@material-ui/icons/Portrait'; //จัดการข้อมูลพนักงาน//
+import PostAddIcon from '@material-ui/icons/PostAdd'; //เพิ่มบันทึกการลา//
+
+import AddIcon from '@material-ui/icons/Add'; //บันทึกเข้า - ออก//
+import DehazeIcon from '@material-ui/icons/Dehaze'; //ข้อมูลเชิร์ฟเวอร์//
+import InfoIcon from '@material-ui/icons/Info'; //เพิ่มเติม//
+import SettingsIcon from '@material-ui/icons/Settings'; //การจัดการ//
+import SettingsApplicationsIcon from '@material-ui/icons/SettingsApplications'; //ตั้งค่า//
 
 import Clock_date from "../hooks/Clock_date"
 import Clock_time from "../hooks/Clock_time"
@@ -41,9 +53,17 @@ function Home_user(props){
             alignItems="flex-end"
         >
             <Grid xs={12} sm={8} md={6} style={{ backgroundColor: "WHITE", padding: "30px 5% 30px 5%", borderRadius: 6,boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)"}}>
-                <Typography style={{color:"RED",fontSize:"1.5em"}}>
-                    ข้อมูลเซิฟเวอร์
-                </Typography>
+                <Grid
+                    container
+                    direction="row"
+                    justify="flex-start"
+                    alignItems="flex-start"
+                >
+                    <DehazeIcon style={{color:"RED",fontSize:"1.3em",marginTop:8, marginRight:5}}/>
+                    <Typography style={{color:"RED",fontSize:"1.5em"}}>
+                        ข้อมูลเซิฟเวอร์
+                    </Typography>
+                </Grid>
                 <Grid
                     container
                     direction="column"
@@ -68,9 +88,17 @@ function Home_user(props){
                         </Grid>
                     </Grid>
                 </Grid>
-                <Typography style={{color:"RED",fontSize:"1.3em",marginTop:20}}>
-                    บันทึก เข้า-ออก
-                </Typography>
+                <Grid
+                    container
+                    direction="row"
+                    justify="flex-start"
+                    alignItems="flex-start"
+                >
+                    <AddIcon style={{color:"RED",fontSize:"1.3em",marginTop:25, marginRight:5}}/>
+                    <Typography style={{color:"RED",fontSize:"1.3em",marginTop:20}}>
+                        บันทึก เข้า-ออก
+                    </Typography>
+                </Grid>
                 <Grid
                     container
                     direction="column"
@@ -101,9 +129,17 @@ function Home_user(props){
                         </Grid>
                     </Grid>
                 </Grid>
-                <Typography style={{color:"RED",fontSize:"1.3em",marginTop:30}}>
-                    เพื่มเติม
-                </Typography>
+                <Grid
+                    container
+                    direction="row"
+                    justify="flex-start"
+                    alignItems="flex-start"
+                >
+                    <InfoIcon style={{color:"RED",fontSize:"1.3em",marginTop:35, marginRight:5}}/>
+                    <Typography style={{color:"RED",fontSize:"1.3em",marginTop:30}}>
+                        เพื่มเติม
+                    </Typography>
+                </Grid>
                 <Grid
                     container
                     direction="column"
@@ -130,6 +166,7 @@ function Home_user(props){
                                     <div>
                                         <NavLink to="/ปฏิทินการทำงาน" style={{ textDecoration: 'none' }}>
                                             <ListItem button style={{borderRadius:10}} >
+                                                <EventIcon style={{color:"BLACK", marginRight:20}}/>
                                                 <Typography style={{color:"BLACK",fontSize:"1.5em"}}>
                                                     ปฏิทินการทำงาน
                                                 </Typography>
@@ -137,6 +174,7 @@ function Home_user(props){
                                         </NavLink>
                                         <NavLink to="/เพื่มบันทึกการลา" style={{ textDecoration: 'none' }}>
                                             <ListItem button style={{borderRadius:10}} >
+                                                <PostAddIcon style={{color:"BLACK", marginRight:20}}/>
                                                 <Typography style={{color:"BLACK",fontSize:"1.5em"}}>
                                                     เพิ่มบันทึกการลา
                                                 </Typography>
@@ -151,9 +189,17 @@ function Home_user(props){
                 {
                     position_eng === "MANAGER" ? (
                         <div>
-                            <Typography style={{color:"RED",fontSize:"1.3em",marginTop:30}}>
-                                การจัดการ
-                            </Typography>
+                            <Grid
+                                container
+                                direction="row"
+                                justify="flex-start"
+                                alignItems="flex-start"
+                            >
+                                <SettingsIcon style={{color:"RED",fontSize:"1.3em",marginTop:35, marginRight:5}}/>
+                                <Typography style={{color:"RED",fontSize:"1.3em",marginTop:30}}>
+                                    การจัดการ
+                                </Typography>
+                            </Grid>
                             <Grid
                                 container
                                 direction="column"
@@ -185,6 +231,7 @@ function Home_user(props){
                                         </NavLink>
                                         <NavLink to="/ลงทะเบียนพนักงาน" style={{ textDecoration: 'none' }}>
                                             <ListItem button style={{borderRadius:10}} >
+                                                <GroupAddIcon style={{color:"BLACK", marginRight:20}}/>
                                                 <Typography style={{color:"BLACK",fontSize:"1.5em"}}>
                                                     ลงทะเบียนพนักงาน
                                                 </Typography>
@@ -192,6 +239,7 @@ function Home_user(props){
                                         </NavLink>
                                         <NavLink to="/อนุมัติการลา" style={{ textDecoration: 'none' }}>
                                             <ListItem button style={{borderRadius:10}} >
+                                                <EventAvailableIcon style={{color:"BLACK", marginRight:20}}/>
                                                 <Typography style={{color:"BLACK",fontSize:"1.5em"}}>
                                                     อนุมัติการลา
                                                 </Typography>
@@ -199,6 +247,7 @@ function Home_user(props){
                                         </NavLink>
                                         <NavLink to="/ปรับปรุงเวลา" style={{ textDecoration: 'none' }}>
                                             <ListItem button style={{borderRadius:10}} >
+                                                <AvTimerIcon style={{color:"BLACK", marginRight:20}}/> 
                                                 <Typography style={{color:"BLACK",fontSize:"1.5em"}}>
                                                     ปรับปรุงเวลา
                                                 </Typography>
@@ -206,6 +255,7 @@ function Home_user(props){
                                         </NavLink>
                                         <NavLink to="/ดูเงินเดือนพนักงาน" style={{ textDecoration: 'none' }}>
                                             <ListItem button style={{borderRadius:10}} >
+                                                <MonetizationOnIcon style={{color:"BLACK", marginRight:20}}/>
                                                 <Typography style={{color:"BLACK",fontSize:"1.5em"}}>
                                                     ดูเงินเดือนพนักงาน
                                                 </Typography>
@@ -213,6 +263,7 @@ function Home_user(props){
                                         </NavLink>
                                         <NavLink to="/จัดการข้อมูลพนักงาน" style={{ textDecoration: 'none' }}>
                                             <ListItem button style={{borderRadius:10}} >
+                                                <PortraitIcon style={{color:"BLACK", marginRight:20}}/>
                                                 <Typography style={{color:"BLACK",fontSize:"1.5em"}}>
                                                     จัดการข้อมูลพนักงาน
                                                 </Typography>

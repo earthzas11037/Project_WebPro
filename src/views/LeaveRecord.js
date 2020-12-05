@@ -11,6 +11,9 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Button from '@material-ui/core/Button';
 import DateFnsUtils from '@date-io/date-fns';
 import { MuiPickersUtilsProvider, KeyboardTimePicker, KeyboardDatePicker} from "@material-ui/pickers";
+import { API } from '../url';
+import decode from 'jwt-decode';
+import { CallToActionSharp } from '@material-ui/icons';
 
 const useStyles = makeStyles({
     root: {
@@ -39,60 +42,66 @@ function LeaveRecord(props){
 
     const [waitapproval, setWaitapproval] = useState([
         {
-            dateleave:  "15/12/63",
-            dateleave_to: "16/12/63",
-            sumdate: 1,
-            type: "ลาป่วย",
-            detail: "นัดพบแพทย์"
-        },
-        {
-            dateleave:  "15/11/63",
-            dateleave_to: "16/11/63",
-            sumdate: 1,
-            type: "ลาป่วย",
-            detail: "นัดพบแพทย์"
-        },
-        {
-            dateleave:  "15/10/63",
-            dateleave_to: "16/10/63",
-            sumdate: 1,
-            type: "ลาป่วย",
-            detail: "นัดพบแพทย์"
+            seq : null,
+            date_start:  "",
+            date_end: "",
+            leave_type: "",
+            detail: ""
         }
      ])
     const [approval, setApproval] = useState([
         {
-            dateleave:  "15/12/63",
-            dateleave_to: "16/12/63",
-            sumdate: 1,
-            type: "ลาป่วย",
-            detail: "นัดพบแพทย์",
-            approvalBy: "นายโกงกิน  มาสายตลอด",
-            position: "หัวหน้า",
-            department: "บัญชี"
-        },
+            seq : null,
+            date_start:  "",
+            date_end: "",
+            leave_type: "",
+            detail: ""
+        }
+    ])
+    const [disapproval, setDisApproval] = useState([
         {
-            dateleave:  "15/11/63",
-            dateleave_to: "16/11/63",
-            sumdate: 1,
-            type: "ลาป่วย",
-            detail: "นัดพบแพทย์",
-            approvalBy: "นายโกงกิน  มาสายตลอด",
-            position: "หัวหน้า",
-            department: "บัญชี"
-        },
-        {
-            dateleave:  "15/10/63",
-            dateleave_to: "16/10/63",
-            sumdate: 1,
-            type: "ลาป่วย",
-            detail: "นัดพบแพทย์",
-            approvalBy: "นายโกงกิน  มาสายตลอด",
-            position: "หัวหน้า",
-            department: "บัญชี"
+            seq : null,
+            date_start:  "",
+            date_end: "",
+            leave_type: "",
+            detail: ""
         }
     ])
     
+    useEffect(() => {
+        callApi();
+    },[] )
+
+    const callApi = () => {
+        const jwt = JSON.parse(localStorage.getItem('token-jwt'));
+        const decodetoken = decode(jwt);
+        API.get(`api/leaveRecord/AllById/${decodetoken.sub}`,{
+            headers: {
+              Authorization: `Bearer ${jwt}`
+            }
+          })
+            .then((res) => {
+                setWaitapproval(res.data.datawait);
+                setApproval(res.data.dataapprove);
+                setDisApproval(res.data.datadisapprove);
+            }).catch((error) => {
+                
+            });
+    }
+
+    const calculateDate = (date_start, date_end) =>{
+        var date1 = new Date(date_start); 
+        var date2 = new Date(date_end); 
+          
+        // To calculate the time difference of two dates 
+        var Difference_In_Time = date2.getTime() - date1.getTime(); 
+          
+        // To calculate the no. of days between two dates 
+        var Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
+        
+        return Difference_In_Days+1;
+    }
+
     const handleChange = (event) =>{
         const { name, value } = event.target;
         if(name === "selectType"){
@@ -112,6 +121,37 @@ function LeaveRecord(props){
 
     const handleSubmit = (event) =>{
         event.preventDefault();
+        const jwt = JSON.parse(localStorage.getItem('token-jwt'));
+        const decodetoken = decode(jwt);
+        var datainsert = {
+            user_id : decodetoken.sub,
+            date_start : convert(startDate),
+            date_end : convert(endDate),
+            leave_type : selectType,
+            detail : detail
+        }
+        console.log(datainsert);
+        API.post(`api/leaveRecord/insert`, datainsert, {
+            headers: {
+              Authorization: `Bearer ${jwt}`
+            }
+          })
+            .then((res) => {
+                setStartDate(new Date());
+                setEndDate(new Date());
+                setDetail("");
+                setSelectType("");
+                callApi();
+            }).catch((error) => {
+                
+            });
+    }
+
+    function convert(str) {
+        var date = new Date(str),
+          mnth = ("0" + (date.getMonth() + 1)).slice(-2),
+          day = ("0" + date.getDate()).slice(-2);
+        return [ date.getFullYear(), mnth, day].join("-");
     }
 
     return(
@@ -228,10 +268,10 @@ function LeaveRecord(props){
                             <Card className={classes.root} variant="outlined">
                                 <CardContent>
                                     <Typography style={{fontSize:"1em"}}>
-                                        ลาตั้งแต่วันที่  {row.dateleave} &emsp; ถึงวันที่ {row.dateleave_to} &emsp; รวม {row.sumdate} วัน
+                                        ลาตั้งแต่วันที่  {row.date_start} &emsp; ถึงวันที่ {row.date_end} &emsp; รวม {calculateDate(row.date_start,row.date_end)} วัน
                                     </Typography>
                                     <Typography style={{fontSize:"1em"}}>
-                                        ประเภท : {row.type}
+                                        ประเภท : {row.leave_type}
                                     </Typography>
                                     <Typography style={{fontSize:"1em"}}>
                                         รายละเอียด : {row.detail}
@@ -250,19 +290,35 @@ function LeaveRecord(props){
                             <Card className={classes.root} variant="outlined">
                                 <CardContent>
                                     <Typography style={{fontSize:"1em"}}>
-                                        ลาตั้งแต่วันที่  {row.dateleave} &emsp; ถึงวันที่ {row.dateleave_to} &emsp; รวม {row.sumdate} วัน
+                                        ลาตั้งแต่วันที่  {row.date_start} &emsp; ถึงวันที่ {row.date_end} &emsp; รวม {calculateDate(row.date_start,row.date_end)} วัน
                                     </Typography>
                                     <Typography style={{fontSize:"1em"}}>
-                                        ประเภท : {row.type}
+                                        ประเภท : {row.leave_type}
                                     </Typography>
                                     <Typography style={{fontSize:"1em"}}>
                                         รายละเอียด : {row.detail}
                                     </Typography>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                    ))
+                }
+                <Typography style={{color:"RED",fontSize:"1.3em",marginTop:50}}>
+                    รายการไม่อนุมัติ
+                </Typography>
+                {
+                    disapproval.map((row, index) => (
+                        <Grid xs={12} sm={12} md={12} style={{marginTop:20}}>
+                            <Card className={classes.root} variant="outlined">
+                                <CardContent>
                                     <Typography style={{fontSize:"1em"}}>
-                                        อนุมัติโดย : {row.approvalBy}
+                                        ลาตั้งแต่วันที่  {row.date_start} &emsp; ถึงวันที่ {row.date_end} &emsp; รวม {calculateDate(row.date_start,row.date_end)} วัน
                                     </Typography>
                                     <Typography style={{fontSize:"1em"}}>
-                                        ตำแหน่ง : {row.position} &emsp; แผนก : {row.department} 
+                                        ประเภท : {row.leave_type}
+                                    </Typography>
+                                    <Typography style={{fontSize:"1em"}}>
+                                        รายละเอียด : {row.detail}
                                     </Typography>
                                 </CardContent>
                             </Card>

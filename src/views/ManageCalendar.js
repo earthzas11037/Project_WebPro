@@ -10,50 +10,77 @@ import Typography from "@material-ui/core/Typography";
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import {MuiPickersUtilsProvider, KeyboardTimePicker, DateTimePicker} from "@material-ui/pickers";
 import DateFnsUtils from '@date-io/date-fns';
+import { API } from '../url';
+import decode from 'jwt-decode';
 
 const localizer = momentLocalizer(moment)
 
 function ManageCalendar(props){
+    const [editOrcreate, setEditOrCreate] = useState("");
     const [dataEvents, setDataEvents] = useState([])
     const [open, setOpen] = React.useState(false);
     const [addEvent, setAddEvent] = useState({
+        seq: null,
         title: "",
         detail: "",
         start: new Date(),
-        end: new Date()
+        end: new Date(),
+        calendar_type: ""
     })
 
     useEffect(() => {
-        setDataEvents(events)
+        callApi();
     }, [])
 
-    const handleClickOpen = ({ title, detail, start, end })=> {
-        setAddEvent({title: title, detail: detail, start: start, end, end})
+    const callApi = () => {
+        const jwt = JSON.parse(localStorage.getItem('token-jwt'));
+        const decodetoken = decode(jwt);
+        API.get(`api/calendar/getById/${decodetoken.sub}`,{
+            headers: {
+              Authorization: `Bearer ${jwt}`
+            }
+          })
+            .then((res) => {
+                var data = res.data.data;
+                for(var i=0; i< data.length; i++){
+                    data[i] = {
+                        ...data[i],
+                        start : new Date(data[i].start),
+                        end : new Date(data[i].end)
+                    }
+                }
+                setDataEvents(data);
+            }).catch((error) => {
+                
+            });
+    }
+
+    const handleClickOpen = ({ seq, title, detail, start, end,calendar_type })=> {
+        setEditOrCreate("update");
+        setAddEvent({seq: seq, title: title, detail: detail, start: start, end: end, calendar_type: calendar_type})
         setOpen(true);
     };
-  
+
     const handleClickNewOpen = ()=> {
+        setEditOrCreate("insert");
         setAddEvent({
+            seq: null,
             title: "",
             detail: "",
             start: new Date(),
-            end: new Date()
+            end: new Date(),
+            calendar_type: ""
         })
         setOpen(true);
     };
 
     const handleClose = () => {
-        setAddEvent({
-            title: "",
-            detail: "",
-            start: new Date(),
-            end: new Date()
-        })
-      setOpen(false);
+        setOpen(false);
     };
 
     const handleStartDateChange = (date) => {
@@ -71,24 +98,82 @@ function ManageCalendar(props){
         })
     }
 
+    const handleRemove = (event) => {
+        event.preventDefault();
+        // console.log(addEvent.seq)
+        const jwt = JSON.parse(localStorage.getItem('token-jwt'));
+        API.get(`api/calendar/remove/${addEvent.seq}`,{
+            headers: {
+              Authorization: `Bearer ${jwt}`
+            }
+          })
+            .then((res) => {
+                // console.log(res.data)
+                callApi();
+            }).catch((error) => {
+                
+            });
+        setOpen(false);
+    }
+
     const handleSubmit = (event) => {
         event.preventDefault();
-        console.log(addEvent)
-        setDataEvents([
-            ...dataEvents,
-            {
-                title: addEvent.title,
-                detail: addEvent.detail,
-                start: addEvent.start,
-                end: addEvent.end
-            }])
-        setAddEvent({
-            title: "",
-            detail: "",
-            start: new Date(),
-            end: new Date()
-        })
+        const jwt = JSON.parse(localStorage.getItem('token-jwt'));
+        const decodetoken = decode(jwt);
+        var dataInsert = {
+            ...addEvent,
+            user_id: decodetoken.sub,
+            start: convert(addEvent.start),
+            end: convert(addEvent.end),
+            calendar_type : "USER"
+        }
+        // console.log(dataInsert)
+        API.post(`api/calendar/${editOrcreate}`, dataInsert, {
+            headers: {
+              Authorization: `Bearer ${jwt}`
+            }
+          })
+            .then((res) => {
+                // console.log(res.data);
+                // setDataEvents([
+                //     ...dataEvents,
+                //     dataInsert
+                // ])
+                callApi();
+            }).catch((error) => {
+                
+            });
         setOpen(false);
+    }
+
+    function convert(str) {
+        var date = new Date(str);
+        // alert(date);
+        var dd = date.getDate();
+        var mm = date.getMonth() + 1; //January is 0!
+        var yyyy = date.getFullYear();
+        var Hours = date.getHours();
+        var Minutes = date.getUTCMinutes();
+        var Seconds = date.getUTCSeconds();
+
+        if (dd < 10) {
+            dd = '0' + dd;
+        }
+        if (mm < 10) {
+            mm = '0' + mm;
+        }
+        if (Seconds < 10) {
+            Seconds = '0' + Seconds;
+        }
+        if (Hours < 10) {
+            Hours = '0' + Hours;
+        }
+        if (Minutes < 10) {
+            Minutes = '0' + Minutes;
+        }
+
+        date = yyyy + "-" + mm + "-" + dd +  " " +Hours + ":" + Minutes + ":" + Seconds;
+        return date.toString();
     }
 
     return(
@@ -129,7 +214,23 @@ function ManageCalendar(props){
             </Grid>
             <Grid xs={12} sm={12} md={12}>
                 <Dialog xs={12} sm={12} md={12} open={open} onClose={handleClose} >
-                    <DialogContent  style={{width: 500}}>
+                    {
+                        editOrcreate === "update" &&  addEvent.calendar_type === "USER" ? (
+                            <DialogTitle>
+                                <Grid
+                                    container
+                                    direction="row"
+                                    justify="flex-end"
+                                    alignItems="flex-start"
+                                >
+                                    <Button onClick={handleRemove} variant="contained"  color="secondary"  >
+                                        ลบ
+                                    </Button>
+                                </Grid>
+                            </DialogTitle>
+                        ) : null
+                    }
+                    <DialogContent  >
                         <Grid
                             container
                             direction="row"
@@ -201,14 +302,24 @@ function ManageCalendar(props){
                             />
                         </MuiPickersUtilsProvider>
                     </DialogContent>
-                    <DialogActions>
-                        <Button onClick={handleClose} color="primary">
-                            ยกเลิก
-                        </Button>
-                        <Button onClick={handleSubmit} variant="contained"  color="primary"  >
-                            บันทึก
-                        </Button>
-                    </DialogActions>
+                    {
+                        addEvent.calendar_type === "ALL" ? (
+                            <DialogActions>
+                                <Button onClick={handleClose} variant="contained" color="primary">
+                                    ปิด
+                                </Button>
+                            </DialogActions>
+                        ) : (
+                            <DialogActions>
+                                <Button onClick={handleClose} color="primary">
+                                    ยกเลิก
+                                </Button>
+                                <Button onClick={handleSubmit} variant="contained"  color="primary"  >
+                                    บันทึก
+                                </Button>
+                            </DialogActions>
+                        )
+                    }
                 </Dialog>
             </Grid>
         </Grid>
