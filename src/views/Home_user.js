@@ -88,7 +88,7 @@ function Home_user(props){
                         </Grid>
                     </Grid>
                 </Grid>
-                <Grid
+                {/* <Grid
                     container
                     direction="row"
                     justify="flex-start"
@@ -128,7 +128,7 @@ function Home_user(props){
                             </Grid>
                         </Grid>
                     </Grid>
-                </Grid>
+                </Grid> */}
                 <Grid
                     container
                     direction="row"
