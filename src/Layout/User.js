@@ -52,61 +52,66 @@ function User(props){
     }
 
     useEffect(() => {
-        const jwt = JSON.parse(localStorage.getItem('token-jwt'));
-        if(!jwt){
+        if(localStorage.getItem('token-jwt') !== null){
+            const jwt = JSON.parse(localStorage.getItem('token-jwt'));
+            if(!jwt){
+                props.history.push('/login');
+            }
+            const decodetoken = decode(jwt)
+            setPosition_Eng(decodetoken.position_eng)
+            if(decodetoken.type === "ADMIN"){
+                props.history.push('/บันทึกเวลา');
+            }
+            else if(decodetoken.position_eng === "MANAGER"){
+                API.get('api/checkTokenManager',{
+                    headers: {
+                      Authorization: `Bearer ${jwt}`
+                    }
+                  })
+                    .then((res) => {
+                        const token = jwt;
+                        const decodetoken = decode(token)
+                        // console.log(decodetoken)
+                        setCurrentUser({
+                            user_id: decodetoken.sub,
+                            name: decodetoken.name,
+                            position_eng: decodetoken.position_eng,
+                            position_th: decodetoken.position_th,
+                            type_name: decodetoken.type
+                        });
+                        console.log("asd")
+                        props.addUserAtStore(decodetoken);
+                    }).catch((error) => {
+                        localStorage.removeItem("token-jwt");
+                        props.history.push('/login');
+                    });
+            }
+            else {
+                API.get('api/checkToken',{
+                    headers: {
+                      Authorization: `Bearer ${jwt}`
+                    }
+                  })
+                    .then((res) => {
+                        const token = jwt;
+                        const decodetoken = decode(token)
+                        setCurrentUser({
+                            user_id: decodetoken.sub,
+                            name: decodetoken.name,
+                            position_eng: decodetoken.position_eng,
+                            position_th: decodetoken.position_th,
+                            type_name: decodetoken.type
+                        });
+                        console.log("asd")
+                        props.addUserAtStore(decodetoken);
+                    }).catch((error) => {
+                        localStorage.removeItem("token-jwt");
+                        props.history.push('/login');
+                    });
+            }
+        }
+        else{
             props.history.push('/login');
-        }
-        const decodetoken = decode(jwt)
-        setPosition_Eng(decodetoken.position_eng)
-        if(decodetoken.type === "ADMIN"){
-            props.history.push('/บันทึกเวลา');
-        }
-        else if(decodetoken.position_eng === "MANAGER"){
-            API.get('api/checkTokenManager',{
-                headers: {
-                  Authorization: `Bearer ${jwt}`
-                }
-              })
-                .then((res) => {
-                    const token = jwt;
-                    const decodetoken = decode(token)
-                    // console.log(decodetoken)
-                    setCurrentUser({
-                        user_id: decodetoken.sub,
-                        name: decodetoken.name,
-                        position_eng: decodetoken.position_eng,
-                        position_th: decodetoken.position_th,
-                        type_name: decodetoken.type
-                    });
-                    console.log("asd")
-                    props.addUserAtStore(decodetoken);
-                }).catch((error) => {
-                    localStorage.removeItem("token-jwt");
-                    props.history.push('/login');
-                });
-        }
-        else {
-            API.get('api/checkToken',{
-                headers: {
-                  Authorization: `Bearer ${jwt}`
-                }
-              })
-                .then((res) => {
-                    const token = jwt;
-                    const decodetoken = decode(token)
-                    setCurrentUser({
-                        user_id: decodetoken.sub,
-                        name: decodetoken.name,
-                        position_eng: decodetoken.position_eng,
-                        position_th: decodetoken.position_th,
-                        type_name: decodetoken.type
-                    });
-                    console.log("asd")
-                    props.addUserAtStore(decodetoken);
-                }).catch((error) => {
-                    localStorage.removeItem("token-jwt");
-                    props.history.push('/login');
-                });
         }
     },[] )
 

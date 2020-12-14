@@ -39,15 +39,18 @@ function Navi_user(props) {
 
     useEffect(() => {
         console.log(props.userFromStore)
-        const jwt = JSON.parse(localStorage.getItem('token-jwt'));
-        const decodetoken = decode(jwt)
-        setCurrentUser({
-            user_id: decodetoken.user_id,
-            name: decodetoken.name,
-            position_eng: decodetoken.position_eng,
-            position_th: decodetoken.position_th,
-            type_name: decodetoken.type_name
-        })
+        if(localStorage.getItem('token-jwt') !== null ){
+            const jwt = JSON.parse(localStorage.getItem('token-jwt'));
+            const decodetoken = decode(jwt)
+            setCurrentUser({
+                user_id: decodetoken.user_id,
+                name: decodetoken.name,
+                position_eng: decodetoken.position_eng,
+                position_th: decodetoken.position_th,
+                type_name: decodetoken.type_name
+            })
+        }
+        
         // setPagename(props.history.location.pathname.split('/')[1])
     }, []);
 

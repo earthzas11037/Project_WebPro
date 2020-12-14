@@ -14,20 +14,29 @@ function Login(props) {
     const [loginfail, setLoginfail] = useState(false);
 
     useEffect(() => {
-        const jwt = JSON.parse(localStorage.getItem('token-jwt'));
-        if(jwt){
-            const decodetoken = decode(jwt)
-            props.addUserAtStore(decodetoken);
-            if(decodetoken.type === "ADMIN"){
-                props.history.push('/บันทึกเวลา');
+        try {
+            if(localStorage.getItem('token-jwt') !== null){
+                console.log("a1265")
+                const jwt = JSON.parse(localStorage.getItem('token-jwt'));
+                console.log("asdasd")
+                if(jwt){
+                    const decodetoken = decode(jwt, { header: true })
+                    props.addUserAtStore(decodetoken);
+                    if(decodetoken.type === "ADMIN"){
+                        props.history.push('/บันทึกเวลา');
+                    }
+                    else if(decodetoken.position_eng === "MANAGER"){
+                        props.history.push('/หน้าหลัก');
+                    }
+                    else {
+                        props.history.push('/หน้าหลัก');
+                    }
+                }
             }
-            else if(decodetoken.position_eng === "MANAGER"){
-                props.history.push('/หน้าหลัก');
-            }
-            else {
-                props.history.push('/หน้าหลัก');
-            }
+        } catch(error) {
+            
         }
+        
     },[] )
 
 
