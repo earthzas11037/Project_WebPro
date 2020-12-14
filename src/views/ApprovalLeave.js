@@ -6,6 +6,8 @@ import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from "@material-ui/core/Typography";
 import Button from '@material-ui/core/Button';
+import Alert from '@material-ui/lab/Alert';
+import Snackbar from '@material-ui/core/Snackbar';
 import { API } from '../url';
 
 const useStyles = makeStyles({
@@ -37,7 +39,10 @@ function ApprovalLeave(props){
             detail: ""
         },
 
-     ])
+    ])
+    const [sendStatus_true, setSendStatus_true] = useState(false);
+    const [sendStatus_error, setSendStatus_error] = useState(false);
+    const [textAlert, setTextAlert] = useState("");
 
     useEffect(() => {
         callApi();
@@ -70,9 +75,10 @@ function ApprovalLeave(props){
             }
           })
             .then((res) => {
+                setTrueAlert("บันทึกอนุมัติการลาสำเร็จ!");
                 callApi();
             }).catch((error) => {
-
+                setErrorAlert("บันทึกอนุมัติการลาไม่สำเร็จ!");
             });
     }
 
@@ -88,9 +94,10 @@ function ApprovalLeave(props){
             }
           })
             .then((res) => {
+                setTrueAlert("บันทึกไม่อนุมัติการลาสำเร็จ!");
                 callApi();
             }).catch((error) => {
-
+                setTrueAlert("บันทึกไม่อนุมัติการลาสำเร็จ!");
             });
     }
     
@@ -107,6 +114,17 @@ function ApprovalLeave(props){
         return Difference_In_Days+1;
     }
 
+    const setTrueAlert = (text) =>{
+        setSendStatus_true(true);
+        setTextAlert(text);
+        setTimeout(()=>{setSendStatus_true(false) }, 2000);
+    }
+    const setErrorAlert = (text) =>{
+        setSendStatus_error(true);
+        setTextAlert(text);
+        setTimeout(()=>{setSendStatus_error(false) }, 2000);
+    }
+
     return(
         <Grid
             container
@@ -114,6 +132,28 @@ function ApprovalLeave(props){
             justify="center"
             alignItems="flex-end"
         >
+            <Grid xs={12} sm={10} md={9} lg={8}>
+                { sendStatus_true ? (
+                    <Snackbar open={sendStatus_true} autoHideDuration={3000} anchorOrigin={{ vertical: "top", horizontal: "center" }} style={{top:200}}>
+                        <Alert  
+                            variant="filled" severity="success" style={{fontSize:"1.2em"}}
+                        >
+                            {textAlert}
+                        </Alert>
+                    </Snackbar>
+                    ) : null
+                    }
+                { sendStatus_error ? (
+                    <Snackbar open={sendStatus_error} autoHideDuration={3000} anchorOrigin={{ vertical: "top", horizontal: "center" }} style={{top:200}}>
+                        <Alert  
+                            variant="filled" severity="error" style={{fontSize:"1.2em"}}
+                        >
+                            {textAlert}
+                        </Alert>
+                    </Snackbar>
+                    ) : null
+                }
+            </Grid>
             <Grid xs={12} sm={8} md={6} style={{ backgroundColor: "WHITE", padding: "30px 5% 30px 5%", borderRadius: 6,boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)"}}>
                 <Typography style={{color:"RED",fontSize:"1.5em"}}>
                     รายการรออนุมติ

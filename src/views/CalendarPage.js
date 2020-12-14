@@ -17,6 +17,8 @@ import {MuiPickersUtilsProvider, KeyboardTimePicker, DateTimePicker} from "@mate
 import DateFnsUtils from '@date-io/date-fns';
 import { API } from '../url';
 import decode from 'jwt-decode';
+import Alert from '@material-ui/lab/Alert';
+import Snackbar from '@material-ui/core/Snackbar';
 
 const localizer = momentLocalizer(moment)
 
@@ -32,6 +34,9 @@ function CalendarPage(props){
         end: new Date(),
         calendar_type: ""
     })
+    const [sendStatus_true, setSendStatus_true] = useState(false);
+    const [sendStatus_error, setSendStatus_error] = useState(false);
+    const [textAlert, setTextAlert] = useState("");
 
     useEffect(() => {
         callApi();
@@ -108,10 +113,10 @@ function CalendarPage(props){
             }
           })
             .then((res) => {
-                // console.log(res.data)
+                setTrueAlert("ลบข้อมูลสำเร็จ!");
                 callApi();
             }).catch((error) => {
-                
+                setErrorAlert("ลบข้อมูลไม่สำเร็จ");
             });
         setOpen(false);
     }
@@ -134,14 +139,10 @@ function CalendarPage(props){
             }
           })
             .then((res) => {
-                // console.log(res.data);
-                // setDataEvents([
-                //     ...dataEvents,
-                //     dataInsert
-                // ])
+                setTrueAlert("บันทึกข้อมูลสำเร็จ!");
                 callApi();
             }).catch((error) => {
-                
+                setErrorAlert("บันทึกข้อมูลไม่สำเร็จ");
             });
         setOpen(false);
     }
@@ -176,6 +177,16 @@ function CalendarPage(props){
         return date.toString();
     }
 
+    const setTrueAlert = (text) =>{
+        setSendStatus_true(true);
+        setTextAlert(text);
+        setTimeout(()=>{setSendStatus_true(false) }, 2000);
+    }
+    const setErrorAlert = (text) =>{
+        setSendStatus_error(true);
+        setTextAlert(text);
+        setTimeout(()=>{setSendStatus_error(false) }, 2000);
+    }
     return(
         <Grid
             container
@@ -183,6 +194,28 @@ function CalendarPage(props){
             justify="center"
             alignItems="flex-end"
         >
+            <Grid xs={12} sm={10} md={9} lg={8}>
+                { sendStatus_true ? (
+                    <Snackbar open={sendStatus_true} autoHideDuration={3000} anchorOrigin={{ vertical: "top", horizontal: "center" }} style={{top:200}}>
+                        <Alert  
+                            variant="filled" severity="success" style={{fontSize:"1.2em"}}
+                        >
+                            {textAlert}
+                        </Alert>
+                    </Snackbar>
+                    ) : null
+                    }
+                { sendStatus_error ? (
+                    <Snackbar open={sendStatus_error} autoHideDuration={3000} anchorOrigin={{ vertical: "top", horizontal: "center" }} style={{top:200}}>
+                        <Alert  
+                            variant="filled" severity="error" style={{fontSize:"1.2em"}}
+                        >
+                            {textAlert}
+                        </Alert>
+                    </Snackbar>
+                    ) : null
+                }
+            </Grid>
             <Grid xs={12} sm={8} md={6} style={{ backgroundColor: "WHITE", padding: "30px 5% 30px 5%", borderRadius: 6,boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)"}}>
                 <Grid 
                     container
@@ -209,7 +242,7 @@ function CalendarPage(props){
                     defaultView={Views.MONTH}
                     style={{ height: 700,marginTop:10}}
                     onSelectEvent={handleClickOpen}
-                    onSelectSlot={handleClickOpen}
+                    // onSelectSlot={handleClickOpen}
                 />
             </Grid>
             <Grid xs={12} sm={12} md={12}>
@@ -238,7 +271,7 @@ function CalendarPage(props){
                             alignItems="flex-start"
                         >
                             <Typography style={{color:"BLACK",fontSize:"1.5em"}}>   
-                                Add Event
+                                เพื่มอีเวนท์
                             </Typography>
                         </Grid>
                         <TextField

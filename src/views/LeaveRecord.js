@@ -14,6 +14,8 @@ import { MuiPickersUtilsProvider, KeyboardTimePicker, KeyboardDatePicker} from "
 import { API } from '../url';
 import decode from 'jwt-decode';
 import { CallToActionSharp } from '@material-ui/icons';
+import Alert from '@material-ui/lab/Alert';
+import Snackbar from '@material-ui/core/Snackbar';
 
 const useStyles = makeStyles({
     root: {
@@ -67,7 +69,10 @@ function LeaveRecord(props){
             detail: ""
         }
     ])
-    
+    const [sendStatus_true, setSendStatus_true] = useState(false);
+    const [sendStatus_error, setSendStatus_error] = useState(false);
+    const [textAlert, setTextAlert] = useState("");
+
     useEffect(() => {
         callApi();
     },[] )
@@ -130,21 +135,28 @@ function LeaveRecord(props){
             leave_type : selectType,
             detail : detail
         }
-        console.log(datainsert);
-        API.post(`api/leaveRecord/insert`, datainsert, {
-            headers: {
-              Authorization: `Bearer ${jwt}`
-            }
-          })
-            .then((res) => {
-                setStartDate(new Date());
-                setEndDate(new Date());
-                setDetail("");
-                setSelectType("");
-                callApi();
-            }).catch((error) => {
-                
-            });
+        // console.log(datainsert);
+        if(startDate !== null && endDate !== null && selectType !== "" && detail !== ""){
+            API.post(`api/leaveRecord/insert`, datainsert, {
+                headers: {
+                  Authorization: `Bearer ${jwt}`
+                }
+              })
+                .then((res) => {
+                    setTrueAlert("บักทึกการลาสำเร็จ! (รอการอนุมัติ)");
+                    setStartDate(new Date());
+                    setEndDate(new Date());
+                    setDetail("");
+                    setSelectType("");
+                    callApi();
+                }).catch((error) => {
+                    setErrorAlert("บันทึกการลาไม่สำเร็จ!");
+                });
+        }
+        else{
+            setErrorAlert("กรุณากรอกข้อมูลให้ครบ!");
+        }
+        
     }
 
     function convert(str) {
@@ -154,6 +166,17 @@ function LeaveRecord(props){
         return [ date.getFullYear(), mnth, day].join("-");
     }
 
+    const setTrueAlert = (text) =>{
+        setSendStatus_true(true);
+        setTextAlert(text);
+        setTimeout(()=>{setSendStatus_true(false) }, 2000);
+    }
+    const setErrorAlert = (text) =>{
+        setSendStatus_error(true);
+        setTextAlert(text);
+        setTimeout(()=>{setSendStatus_error(false) }, 2000);
+    }
+
     return(
         <Grid
             container
@@ -161,6 +184,28 @@ function LeaveRecord(props){
             justify="center"
             alignItems="flex-end"
         >
+            <Grid xs={12} sm={10} md={9} lg={8}>
+                { sendStatus_true ? (
+                    <Snackbar open={sendStatus_true} autoHideDuration={3000} anchorOrigin={{ vertical: "top", horizontal: "center" }} style={{top:200}}>
+                        <Alert  
+                            variant="filled" severity="success" style={{fontSize:"1.2em"}}
+                        >
+                            {textAlert}
+                        </Alert>
+                    </Snackbar>
+                    ) : null
+                    }
+                { sendStatus_error ? (
+                    <Snackbar open={sendStatus_error} autoHideDuration={3000} anchorOrigin={{ vertical: "top", horizontal: "center" }} style={{top:200}}>
+                        <Alert  
+                            variant="filled" severity="error" style={{fontSize:"1.2em"}}
+                        >
+                            {textAlert}
+                        </Alert>
+                    </Snackbar>
+                    ) : null
+                }
+            </Grid>
             <Grid xs={12} sm={8} md={6} style={{ backgroundColor: "WHITE", padding: "30px 5% 30px 5%", borderRadius: 6,boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)"}}>
                 <Typography style={{color:"RED",fontSize:"1.3em"}}>
                     เพื่มบันทึกการลา

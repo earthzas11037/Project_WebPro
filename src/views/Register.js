@@ -7,6 +7,8 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import Typography from "@material-ui/core/Typography";
 import MenuItem from '@material-ui/core/MenuItem';
+import Alert from '@material-ui/lab/Alert';
+import Snackbar from '@material-ui/core/Snackbar';
 import { API } from '../url';
 
 function Register(props){
@@ -26,6 +28,9 @@ function Register(props){
         tel: '',
     })
     const [position, setPosition] = useState([]);
+    const [sendStatus_true, setSendStatus_true] = useState(false);
+    const [sendStatus_error, setSendStatus_error] = useState(false);
+    const [textAlert, setTextAlert] = useState("");
 
     useEffect(() => {
         var jwt = JSON.parse(localStorage.getItem('token-jwt'));
@@ -57,24 +62,44 @@ function Register(props){
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        console.log(dataRegister)
+        console.log(sendStatus_error)
         var jwt = JSON.parse(localStorage.getItem('token-jwt'));
-        API.post(`api/register`,dataRegister, {
-            headers: {
-              Authorization: `Bearer ${jwt}`
-            }
-          })
-            .then((res) => {
-                setResultRegister({
-                    id: res.data.message.id,
-                    name: res.data.message.name,
-                    tel: res.data.message.tel
+        if(dataRegister.password !== dataRegister.confirmpassword){
+            setErrorAlert("ยืนยันรหัสผ่านไม่ถูกต้อง");
+            return;
+        }
+        if(dataRegister.name !== "" && dataRegister.tel !== "" && dataRegister.person_id !== "" && dataRegister.salary >= 0){
+            API.post(`api/register`,dataRegister, {
+                headers: {
+                  Authorization: `Bearer ${jwt}`
+                }
+              })
+                .then((res) => {
+                    setResultRegister({
+                        id: res.data.message.id,
+                        name: res.data.message.name,
+                        tel: res.data.message.tel
+                    });
+                    setOpen(true);
+                }).catch((error) => {
+                    setErrorAlert("ลงทะเบียนผพนักงานไม่สำเร็จ");
                 });
-                setOpen(true);
-                console.log(res.data)
-            }).catch((error) => {
+        }
+        else{
+            setErrorAlert("กรุณากรอกข้อมูลให้ครบ");
+        }
+        console.log(sendStatus_error)
+    }
 
-            });
+    const setTrueAlert = (text) =>{
+        setSendStatus_true(true);
+        setTextAlert(text);
+        setTimeout(()=>{setSendStatus_true(false) }, 2000);
+    }
+    const setErrorAlert = (text) =>{
+        setSendStatus_error(true);
+        setTextAlert(text);
+        setTimeout(()=>{setSendStatus_error(false) }, 2000);
     }
 
     return(
@@ -84,6 +109,28 @@ function Register(props){
             justify="center"
             alignItems="flex-end"
         >
+            <Grid xs={12} sm={10} md={9} lg={8}>
+                { sendStatus_true ? (
+                    <Snackbar open={sendStatus_true} autoHideDuration={3000} anchorOrigin={{ vertical: "top", horizontal: "center" }} style={{top:200}}>
+                        <Alert  
+                            variant="filled" severity="success" style={{fontSize:"1.2em"}}
+                        >
+                            {textAlert}
+                        </Alert>
+                    </Snackbar>
+                    ) : null
+                    }
+                { sendStatus_error ? (
+                    <Snackbar open={sendStatus_error} autoHideDuration={3000} anchorOrigin={{ vertical: "top", horizontal: "center" }} style={{top:200}}>
+                        <Alert  
+                            variant="filled" severity="error" style={{fontSize:"1.2em"}}
+                        >
+                            {textAlert}
+                        </Alert>
+                    </Snackbar>
+                    ) : null
+                }
+            </Grid>
             <Grid xs={12} sm={6} md={4} style={{ backgroundColor: "WHITE", padding: "30px 5% 30px 5%", borderRadius: 6,boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)"}}>
                 <Grid  item xs={12} sm={12} md={12}>
                     <TextField

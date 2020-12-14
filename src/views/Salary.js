@@ -4,6 +4,8 @@ import MaterialTable from "material-table";
 import TextField from '@material-ui/core/TextField';
 import MenuItem from '@material-ui/core/MenuItem';
 import Button from '@material-ui/core/Button';
+import Alert from '@material-ui/lab/Alert';
+import Snackbar from '@material-ui/core/Snackbar';
 import { API } from '../url';
 
 function Salary(props){
@@ -21,6 +23,9 @@ function Salary(props){
     const [selectMonth, setSelectMonth] = useState("")
     const [selectYear, setSelectYear] = useState("")
     const monthTH = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฏาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
+    const [sendStatus_true, setSendStatus_true] = useState(false);
+    const [sendStatus_error, setSendStatus_error] = useState(false);
+    const [textAlert, setTextAlert] = useState("");
 
     const handleChangeYear = (event) =>{
         const { name, value } = event.target;
@@ -34,8 +39,8 @@ function Salary(props){
 
     const handleCal = (event) => {
         event.preventDefault();
-        console.log(selectYear)
-        console.log(selectMonth)
+        // console.log(selectYear)
+        // console.log(selectMonth)
         var jwt = JSON.parse(localStorage.getItem('token-jwt'));
         API.get(`api/report/All/${selectYear}/${selectMonth+1}`,{
             headers: {
@@ -76,9 +81,9 @@ function Salary(props){
             }
           })
             .then((res) => {
-
+                setTrueAlert("บันทึกข้อมูลสำเร็จ!");
             }).catch((error) => {
-
+                setErrorAlert("บันทึกข้อมูลไม่สำเร็จ!");
             });
     }
 
@@ -89,6 +94,17 @@ function Salary(props){
         return [ date.getFullYear(), mnth, day].join("-");
     }
 
+    const setTrueAlert = (text) =>{
+        setSendStatus_true(true);
+        setTextAlert(text);
+        setTimeout(()=>{setSendStatus_true(false) }, 2000);
+    }
+    const setErrorAlert = (text) =>{
+        setSendStatus_error(true);
+        setTextAlert(text);
+        setTimeout(()=>{setSendStatus_error(false) }, 2000);
+    }
+
     return(
         <Grid
             container
@@ -96,6 +112,28 @@ function Salary(props){
             justify="center"
             alignItems="flex-end"
         >
+            <Grid xs={12} sm={10} md={9} lg={8}>
+                { sendStatus_true ? (
+                    <Snackbar open={sendStatus_true} autoHideDuration={3000} anchorOrigin={{ vertical: "top", horizontal: "center" }} style={{top:200}}>
+                        <Alert  
+                            variant="filled" severity="success" style={{fontSize:"1.2em"}}
+                        >
+                            {textAlert}
+                        </Alert>
+                    </Snackbar>
+                    ) : null
+                    }
+                { sendStatus_error ? (
+                    <Snackbar open={sendStatus_error} autoHideDuration={3000} anchorOrigin={{ vertical: "top", horizontal: "center" }} style={{top:200}}>
+                        <Alert  
+                            variant="filled" severity="error" style={{fontSize:"1.2em"}}
+                        >
+                            {textAlert}
+                        </Alert>
+                    </Snackbar>
+                    ) : null
+                }
+            </Grid>
             <Grid xs={12} sm={12} md={10} style={{ backgroundColor: "WHITE", padding: "30px 3% 30px 3%", borderRadius: 6,boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)"}}>
                 <Grid container spacing={4}>
                     <Grid xs={12} sm={3} md={2}>

@@ -19,6 +19,8 @@ import Button from '@material-ui/core/Button';
 import MenuItem from '@material-ui/core/MenuItem';
 import { API } from '../url';
 import { CallToActionSharp } from '@material-ui/icons';
+import Alert from '@material-ui/lab/Alert';
+import Snackbar from '@material-ui/core/Snackbar';
 
 const useStyles = makeStyles({
     table: {
@@ -36,16 +38,19 @@ function Manage_User(props){
         person_id: "",
         position_id: "",
         position_th: "",
-        salary: null
+        salary: 0
     }
     ])
+    const [user_id, setUser_id] = useState(null);
     const [editIdx, setEditIdx] = useState(-1)
     const [oldData, setOldData] = useState([])
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const emptyRows = rowsPerPage - Math.min(rowsPerPage, tableData.length - page * rowsPerPage);
-    const [startDate, setStartDate] = useState(new Date());
     const [position, setPosition] = useState(['ผู้จัดการ','พนักงานประจำ', 'พนักงานพาร์ทไทม์']);
+    const [sendStatus_true, setSendStatus_true] = useState(false);
+    const [sendStatus_error, setSendStatus_error] = useState(false);
+    const [textAlert, setTextAlert] = useState("");
 
     useEffect(() => {
         callApi();
@@ -53,16 +58,26 @@ function Manage_User(props){
 
     const callApi = () =>{
         var jwt = JSON.parse(localStorage.getItem('token-jwt'));
-        API.get(`api/alluser`,{
-            headers: {
-              Authorization: `Bearer ${jwt}`
-            }
-          })
-            .then((res) => {
-                setTableData(res.data.data)
-            }).catch((error) => {
+        if(user_id !== null){
+            searchUpdate();
+        }
+        else{
+            API.get(`api/alluser`,{
+                headers: {
+                  Authorization: `Bearer ${jwt}`
+                }
+              })
+                .then((res) => {
+                    setTableData(res.data.data)
+                }).catch((error) => {
+    
+                });
+        }
+    }
 
-            });
+    const handleChange = (event) => {
+        const { name, value } = event.target;
+        setUser_id(value);
     }
 
     const handleChangeTable = (index) => (event) => {
@@ -109,17 +124,23 @@ function Manage_User(props){
     const submitEditing = (i) => {
         console.log(tableData[i])
         var jwt = JSON.parse(localStorage.getItem('token-jwt'));
-        API.post(`api/updateUser`,tableData[i], {
-            headers: {
-              Authorization: `Bearer ${jwt}`
-            }
-          })
-            .then((res) => {
-                setEditIdx(-1)
-                callApi();
-            }).catch((error) => {
-
-            });
+        if(tableData[i].name !== "" && tableData[i].tel !== "" && tableData[i].person_id !== "" && tableData[i].salary >= 0 && tableData[i].position_id !== ""){
+            API.post(`api/updateUser`,tableData[i], {
+                headers: {
+                  Authorization: `Bearer ${jwt}`
+                }
+              })
+                .then((res) => {
+                    setTrueAlert("แก้ไขข้อมูลสำเร็จ!");
+                    setEditIdx(-1)
+                    callApi();
+                }).catch((error) => {
+                    setErrorAlert("แก้ไขข้อมูลไม่สำเร็จ!");
+                });
+        }
+        else{
+            setErrorAlert("กรุณากรอกข้อมูลให้ครบ");
+        }
     }
 
     const stopEditing = (i) => {
@@ -129,14 +150,35 @@ function Manage_User(props){
         setEditIdx(-1)
     }
 
-    const handleStartDateChange = (date) => {
-        setStartDate(date);
-    };
-
     const searchUpdate = (event) => {
         event.preventDefault();
+        var jwt = JSON.parse(localStorage.getItem('token-jwt'));
+        if(user_id !== ""){
+            API.get(`api/user/${user_id}`,{
+                headers: {
+                  Authorization: `Bearer ${jwt}`
+                }
+              })
+                .then((res) => {
+                    setTableData(res.data.data)
+                }).catch((error) => {
+    
+                });
+        }
+        
     }
     
+    const setTrueAlert = (text) =>{
+        setSendStatus_true(true);
+        setTextAlert(text);
+        setTimeout(()=>{setSendStatus_true(false) }, 2000);
+    }
+    const setErrorAlert = (text) =>{
+        setSendStatus_error(true);
+        setTextAlert(text);
+        setTimeout(()=>{setSendStatus_error(false) }, 2000);
+    }
+
     const row = (x, index) => {
         const currentlyEditing = editIdx === index;
         return(
@@ -227,6 +269,28 @@ function Manage_User(props){
             justify="center"
             alignItems="flex-end"
         >
+            <Grid xs={12} sm={10} md={9} lg={8}>
+                { sendStatus_true ? (
+                    <Snackbar open={sendStatus_true} autoHideDuration={3000} anchorOrigin={{ vertical: "top", horizontal: "center" }} style={{top:200}}>
+                        <Alert  
+                            variant="filled" severity="success" style={{fontSize:"1.2em"}}
+                        >
+                            {textAlert}
+                        </Alert>
+                    </Snackbar>
+                    ) : null
+                    }
+                { sendStatus_error ? (
+                    <Snackbar open={sendStatus_error} autoHideDuration={3000} anchorOrigin={{ vertical: "top", horizontal: "center" }} style={{top:200}}>
+                        <Alert  
+                            variant="filled" severity="error" style={{fontSize:"1.2em"}}
+                        >
+                            {textAlert}
+                        </Alert>
+                    </Snackbar>
+                    ) : null
+                }
+            </Grid>
             <Grid xs={12} sm={12} md={10} style={{ backgroundColor: "WHITE", padding: "30px 5% 30px 5%", borderRadius: 6,boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)"}}>
             <Grid container spacing={4}>
                     <Grid item xs={12} sm={6} md={4}>
@@ -236,9 +300,9 @@ function Manage_User(props){
                             inputProps={{style: {fontSize: "1.2em"}}}
                             InputLabelProps={{shrink: true}}
                             variant="outlined"
-                            name="tel"
-                            // value={userId}
-                            // onChange={handleChange}
+                            name="user_id"
+                            value={user_id}
+                            onChange={handleChange}
                         />
                     </Grid>
                     <Grid container item xs={12} sm={12} md={2}>

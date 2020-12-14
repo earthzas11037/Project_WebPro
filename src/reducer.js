@@ -22,27 +22,7 @@ const reducer = (state = initialState, action) => {
                 }
             }
             return addedState;
-
-        case 'ADD_INBOUND':
-            const addedState_inbound = {
-                ...state,
-                inbound: action.playload
-            }
-            return addedState_inbound;
-
-        case 'ADD_INBOUND_USER':
-            const addedState_inbound_user = {
-                ...state,
-                inbound_user: action.playload
-            }
-            return addedState_inbound_user;
-
-        case 'ADD_OUTBOUND':
-            const addedState_outbound = {
-                ...state,
-                outbound: action.playload
-            }
-            return addedState_outbound;
+            
         default:
             break;
     }
